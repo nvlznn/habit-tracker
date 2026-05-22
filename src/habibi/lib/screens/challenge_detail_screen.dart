@@ -239,7 +239,7 @@ class _ParticipantRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final today = todayKey();
+    final today = simulatedTodayKey();
     final doneToday = dateKeys.contains(today);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

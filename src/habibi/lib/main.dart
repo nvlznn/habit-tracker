@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'data/auth_repository.dart';
+import 'data/billing_repository.dart';
 import 'data/social_repository.dart';
 import 'models/challenge.dart';
 import 'models/friend.dart';
@@ -10,6 +11,7 @@ import 'models/habit.dart';
 import 'models/user_profile.dart';
 import 'providers/auth_provider.dart';
 import 'providers/challenge_provider.dart';
+import 'providers/entitlement_provider.dart';
 import 'providers/habit_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/root_screen.dart';
@@ -34,10 +36,13 @@ Future<void> main() async {
   final challengesBox = await Hive.openBox<Challenge>(_challengesBoxName);
   final settingsBox = await Hive.openBox(_settingsBoxName);
 
-  // To go from demo to real Firebase later, swap these two lines for the
+  // To go from demo to real Firebase later, swap these lines for the
   // Firebase implementations — nothing else in the app changes.
   final authRepository = LocalAuthRepository(profileBox);
   final socialRepository = LocalSocialRepository(friendsBox, challengesBox);
+  // Demo billing (mock purchases). Swap for a StoreBillingRepository to charge
+  // through the App Store / Google Play.
+  final billingRepository = LocalBillingRepository(settingsBox);
 
   runApp(MultiProvider(
     providers: [
@@ -45,6 +50,8 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (_) => HabitProvider(habitsBox)),
       ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
       ChangeNotifierProvider(create: (_) => ChallengeProvider(socialRepository)),
+      ChangeNotifierProvider(
+          create: (_) => EntitlementProvider(billingRepository)),
     ],
     child: const HabibiApp(),
   ));

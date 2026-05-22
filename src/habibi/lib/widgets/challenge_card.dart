@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../models/challenge.dart';
 import '../screens/challenge_detail_screen.dart';
+import '../utils/challenge_lifecycle.dart';
+import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import 'dot_grid.dart';
 
 /// A challenge in the list: icon, name, the shared streak, and a dot grid of the
-/// days *everyone* checked in (the set intersection).
+/// days *everyone* checked in (the set intersection). Shows a warning when a
+/// member is close to lapsing the 7-day rule.
 class ChallengeCard extends StatelessWidget {
   const ChallengeCard({super.key, required this.challenge});
 
@@ -18,6 +21,20 @@ class ChallengeCard extends StatelessWidget {
     final color = Color(challenge.colorValue);
     final mutual = mutualDays(challenge.allCheckins);
     final streak = mutualStreak(challenge.allCheckins);
+
+    // Warning based on the most overdue active participant.
+    final today = simulatedTodayEpochDay();
+    final actives = challenge.activeParticipantIds;
+    var maxStale = 0;
+    for (final id in actives) {
+      final s = staleDays(challenge, id, today);
+      if (s > maxStale) maxStale = s;
+    }
+    final daysLeft = (kOverdueThreshold + 1) - maxStale;
+    final showWarning = challenge.status == ChallengeStatus.active &&
+        daysLeft >= 1 &&
+        daysLeft <= 3;
+    final endsNext = actives.length <= 2;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -65,7 +82,7 @@ class ChallengeCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        '${challenge.participantIds.length} people',
+                        '${actives.length} people',
                         style: TextStyle(
                             fontSize: 12,
                             color: cs.onSurface.withValues(alpha: 0.38)),
@@ -76,10 +93,53 @@ class ChallengeCard extends StatelessWidget {
                 _StreakBadge(streak: streak, color: color),
               ],
             ),
+            if (showWarning) ...[
+              const SizedBox(height: 12),
+              _WarningBanner(daysLeft: daysLeft, endsChallenge: endsNext),
+            ],
             const SizedBox(height: 16),
             DotGrid(dateKeys: mutual, color: color),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _WarningBanner extends StatelessWidget {
+  const _WarningBanner({required this.daysLeft, required this.endsChallenge});
+
+  final int daysLeft;
+  final bool endsChallenge;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = daysLeft == 1 ? '1 day' : '$daysLeft days';
+    final msg = endsChallenge
+        ? 'Ends in $d unless someone checks in'
+        : 'A member is dropped in $d';
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              size: 16, color: Colors.orange),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              msg,
+              style: const TextStyle(
+                  fontSize: 12.5,
+                  color: Colors.orange,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }

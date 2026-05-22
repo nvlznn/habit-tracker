@@ -8,8 +8,8 @@ import '../utils/palette.dart';
 import '../widgets/color_picker.dart';
 import '../widgets/icon_picker.dart';
 
-/// Create a new challenge: pick details + one friend to share it with.
-/// (Built for two people now; participantIds is a list so more can be added.)
+/// Create a new challenge: pick details + the friends to share it with.
+/// A challenge has 2–10 people total (you + 1–9 friends).
 class EditChallengeScreen extends StatefulWidget {
   const EditChallengeScreen({super.key});
 
@@ -22,7 +22,10 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
   late TextEditingController _descCtrl;
   int _colorValue = habitColors[5].toARGB32();
   int _iconCodePoint = habitIcons[0].codePoint;
-  String? _friendId;
+  final Set<String> _selectedIds = {};
+
+  /// You + up to 9 friends.
+  static const int _maxParticipants = 10;
 
   @override
   void initState() {
@@ -30,7 +33,7 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
     _nameCtrl = TextEditingController();
     _descCtrl = TextEditingController();
     final friends = context.read<ChallengeProvider>().friends;
-    if (friends.isNotEmpty) _friendId = friends.first.id;
+    if (friends.isNotEmpty) _selectedIds.add(friends.first.id);
   }
 
   @override
@@ -40,14 +43,27 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
     super.dispose();
   }
 
+  void _toggleFriend(String id) {
+    if (_selectedIds.contains(id)) {
+      setState(() => _selectedIds.remove(id));
+      return;
+    }
+    // +1 for "me". Block once we'd exceed the max.
+    if (_selectedIds.length + 1 >= _maxParticipants) {
+      _snack('Up to $_maxParticipants people per challenge');
+      return;
+    }
+    setState(() => _selectedIds.add(id));
+  }
+
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
       _snack('Name cannot be empty');
       return;
     }
-    if (_friendId == null) {
-      _snack('Pick a friend to challenge');
+    if (_selectedIds.isEmpty) {
+      _snack('Pick at least one friend to challenge');
       return;
     }
     final me = context.read<AuthProvider>().currentUser;
@@ -60,7 +76,7 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
           description: _descCtrl.text.trim(),
           colorValue: _colorValue,
           iconCodePoint: _iconCodePoint,
-          participantIds: [me.id, _friendId!],
+          participantIds: [me.id, ..._selectedIds],
         );
     if (!mounted) return;
     Navigator.of(context).pop();
@@ -74,6 +90,7 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
   @override
   Widget build(BuildContext context) {
     final friends = context.watch<ChallengeProvider>().friends;
+    final total = _selectedIds.length + 1; // + me
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Challenge'),
@@ -87,12 +104,27 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _Label('Challenge with'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _Label('Challenge with'),
+                Text(
+                  'You + ${_selectedIds.length} · max $_maxParticipants',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             _FriendSelector(
               friends: friends,
-              selectedId: _friendId,
-              onSelect: (id) => setState(() => _friendId = id),
+              selectedIds: _selectedIds,
+              onToggle: _toggleFriend,
             ),
             const SizedBox(height: 20),
             const _Label('Icon'),
@@ -136,9 +168,10 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  'Create',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                child: Text(
+                  'Create with $total people',
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -166,13 +199,13 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
 class _FriendSelector extends StatelessWidget {
   const _FriendSelector({
     required this.friends,
-    required this.selectedId,
-    required this.onSelect,
+    required this.selectedIds,
+    required this.onToggle,
   });
 
   final List<Friend> friends;
-  final String? selectedId;
-  final ValueChanged<String> onSelect;
+  final Set<String> selectedIds;
+  final ValueChanged<String> onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -188,10 +221,10 @@ class _FriendSelector extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final f in friends)
-          ChoiceChip(
+          FilterChip(
             label: Text(f.displayName),
-            selected: f.id == selectedId,
-            onSelected: (_) => onSelect(f.id),
+            selected: selectedIds.contains(f.id),
+            onSelected: (_) => onToggle(f.id),
           ),
       ],
     );

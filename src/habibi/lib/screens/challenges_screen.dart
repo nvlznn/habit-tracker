@@ -5,8 +5,9 @@ import '../providers/auth_provider.dart';
 import '../providers/challenge_provider.dart';
 import '../widgets/challenge_card.dart';
 import 'edit_challenge_screen.dart';
+import 'graveyard_screen.dart';
 
-/// Tab 2: shared "challenge" habits between you and a friend.
+/// Tab 2: shared "challenge" habits between you and your friends.
 class ChallengesScreen extends StatelessWidget {
   const ChallengesScreen({super.key});
 
@@ -19,6 +20,13 @@ class ChallengesScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Graveyard (past challenges)',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GraveyardScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _startCreate(context),
@@ -33,11 +41,12 @@ class ChallengesScreen extends StatelessWidget {
               text: 'Sign in on the Friends tab\nto create challenges',
             );
           }
-          final challenges = social.challenges;
+          final myId = auth.currentUser!.id;
+          final challenges = social.activeForMe(myId);
           if (challenges.isEmpty) {
             return const _Hint(
               icon: Icons.local_fire_department_outlined,
-              text: 'No challenges yet.\nTap + to start one with a friend.',
+              text: 'No active challenges.\nTap + to start one with friends.',
             );
           }
           return ListView.separated(

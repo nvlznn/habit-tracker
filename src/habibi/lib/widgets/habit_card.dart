@@ -8,9 +8,19 @@ import '../utils/date_key.dart';
 import 'dot_grid.dart';
 
 class HabitCard extends StatelessWidget {
-  const HabitCard({super.key, required this.habit});
+  const HabitCard({
+    super.key,
+    required this.habit,
+    this.locked = false,
+    this.onLockedTap,
+  });
 
   final Habit habit;
+
+  /// When true the card is greyed out and read-only (used for habits beyond the
+  /// free limit). Tapping it calls [onLockedTap] instead of opening the detail.
+  final bool locked;
+  final VoidCallback? onLockedTap;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +28,70 @@ class HabitCard extends StatelessWidget {
     final color = Color(habit.colorValue);
     final today = todayKey();
     final isDoneToday = habit.dateKeys.contains(today);
+
+    final card = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  IconData(habit.iconCodePoint, fontFamily: 'MaterialIcons'),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  habit.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (locked)
+                Icon(Icons.lock_outline,
+                    size: 22, color: cs.onSurface.withValues(alpha: 0.5))
+              else
+                _CheckSquare(
+                  color: color,
+                  done: isDoneToday,
+                  onTap: () =>
+                      context.read<HabitProvider>().toggleDay(habit.id, today),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          DotGrid(dateKeys: habit.dateKeys, color: color),
+        ],
+      ),
+    );
+
+    if (locked) {
+      return Opacity(
+        opacity: 0.55,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onLockedTap,
+          child: card,
+        ),
+      );
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -28,54 +102,7 @@ class HabitCard extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    IconData(habit.iconCodePoint, fontFamily: 'MaterialIcons'),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    habit.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                _CheckSquare(
-                  color: color,
-                  done: isDoneToday,
-                  onTap: () =>
-                      context.read<HabitProvider>().toggleDay(habit.id, today),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            DotGrid(dateKeys: habit.dateKeys, color: color),
-          ],
-        ),
-      ),
+      child: card,
     );
   }
 }
