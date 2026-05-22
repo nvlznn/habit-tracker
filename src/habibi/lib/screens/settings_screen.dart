@@ -8,6 +8,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -19,18 +20,57 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Consumer<ThemeProvider>(
-            builder: (context, theme, _) => SwitchListTile(
-              secondary: Icon(
-                theme.isDark ? Icons.dark_mode : Icons.light_mode,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 12),
+            child: Text(
+              'Appearance',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface.withValues(alpha: 0.60),
               ),
-              title: const Text('Dark mode'),
-              subtitle: Text(theme.isDark ? 'On' : 'Off'),
-              value: theme.isDark,
-              onChanged: (_) => theme.toggle(),
             ),
           ),
-          const Divider(),
+          Consumer<ThemeProvider>(
+            builder: (context, theme, _) => SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<ThemeMode>(
+                showSelectedIcon: false,
+                segments: const [
+                  ButtonSegment(
+                    value: ThemeMode.system,
+                    icon: Icon(Icons.brightness_auto),
+                    label: Text('System'),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.light,
+                    icon: Icon(Icons.light_mode),
+                    label: Text('Light'),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.dark,
+                    icon: Icon(Icons.dark_mode),
+                    label: Text('Dark'),
+                  ),
+                ],
+                selected: {theme.themeMode},
+                onSelectionChanged: (selection) =>
+                    theme.setMode(selection.first),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              '"System" follows your device\'s light/dark setting.',
+              style: TextStyle(
+                fontSize: 12,
+                color: cs.onSurface.withValues(alpha: 0.45),
+              ),
+            ),
+          ),
+          const Divider(height: 32),
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('About habibi'),

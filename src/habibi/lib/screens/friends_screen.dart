@@ -311,7 +311,7 @@ Future<String?> _promptName(BuildContext context, {required String title}) {
   return showDialog<String>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Theme.of(ctx).colorScheme.surfaceContainer,
       title: Text(title),
       content: TextField(
         controller: controller,

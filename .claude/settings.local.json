@@ -36,7 +36,8 @@
       "Bash(mkdir src *)",
       "Bash(flutter create *)",
       "Bash(git commit *)",
-      "Bash(dart run *)"
+      "Bash(dart run *)",
+      "Bash(gh release *)"
     ]
   }
 }
