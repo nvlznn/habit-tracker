@@ -106,14 +106,14 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _nameCtrl,
-              decoration: _inputDecoration('e.g. gym every day'),
+              decoration: _inputDecoration(context, 'e.g. gym every day'),
             ),
             const SizedBox(height: 16),
             const _Label('Description'),
             const SizedBox(height: 8),
             TextField(
               controller: _descCtrl,
-              decoration: _inputDecoration('optional'),
+              decoration: _inputDecoration(context, 'optional'),
               maxLines: 2,
             ),
             const SizedBox(height: 20),
@@ -148,11 +148,11 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(BuildContext context, String hint) {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: const Color(0xFF1A1A1A),
+      fillColor: Theme.of(context).colorScheme.surfaceContainer,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
@@ -177,9 +177,10 @@ class _FriendSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (friends.isEmpty) {
-      return const Text(
+      return Text(
         'No friends yet — add one in the Friends tab first.',
-        style: TextStyle(color: Colors.white38),
+        style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
       );
     }
     return Wrap(
@@ -205,9 +206,9 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
-        color: Colors.white70,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
         fontWeight: FontWeight.w500,
       ),
     );

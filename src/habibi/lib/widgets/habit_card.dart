@@ -14,6 +14,7 @@ class HabitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final color = Color(habit.colorValue);
     final today = todayKey();
     final isDoneToday = habit.dateKeys.contains(today);
@@ -30,7 +31,7 @@ class HabitCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: cs.surfaceContainer,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -42,7 +43,7 @@ class HabitCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF252525),
+                    color: cs.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(

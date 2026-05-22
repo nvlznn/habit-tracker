@@ -14,6 +14,7 @@ class IconPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GridView.count(
       crossAxisCount: 7,
       shrinkWrap: true,
@@ -27,11 +28,11 @@ class IconPicker extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: selected
-                  ? Colors.white.withValues(alpha: 0.12)
-                  : const Color(0xFF252525),
+                  ? cs.onSurface.withValues(alpha: 0.12)
+                  : cs.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
               border: selected
-                  ? Border.all(color: Colors.white, width: 1.5)
+                  ? Border.all(color: cs.onSurface, width: 1.5)
                   : null,
             ),
             child: Icon(icon, size: 22),

@@ -81,16 +81,18 @@ class _Hint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56, color: Colors.white24),
+          Icon(icon, size: 56, color: cs.onSurface.withValues(alpha: 0.24)),
           const SizedBox(height: 16),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 15, color: Colors.white54),
+            style: TextStyle(
+                fontSize: 15, color: cs.onSurface.withValues(alpha: 0.54)),
           ),
         ],
       ),

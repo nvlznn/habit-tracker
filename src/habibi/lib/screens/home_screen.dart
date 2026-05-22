@@ -59,20 +59,24 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final cs = Theme.of(context).colorScheme;
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle_outline, size: 56, color: Colors.white24),
-          SizedBox(height: 16),
+          Icon(Icons.check_circle_outline,
+              size: 56, color: cs.onSurface.withValues(alpha: 0.24)),
+          const SizedBox(height: 16),
           Text(
             'No habits yet',
-            style: TextStyle(fontSize: 16, color: Colors.white70),
+            style: TextStyle(
+                fontSize: 16, color: cs.onSurface.withValues(alpha: 0.70)),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Tap + to add your first',
-            style: TextStyle(fontSize: 13, color: Colors.white38),
+            style: TextStyle(
+                fontSize: 13, color: cs.onSurface.withValues(alpha: 0.38)),
           ),
         ],
       ),

@@ -38,18 +38,21 @@ class _SignedOutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.people_outline, size: 56, color: Colors.white24),
+            Icon(Icons.people_outline,
+                size: 56, color: cs.onSurface.withValues(alpha: 0.24)),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Sign in to add friends\nand build streaks together',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+              style: TextStyle(
+                  fontSize: 16, color: cs.onSurface.withValues(alpha: 0.70)),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -72,10 +75,11 @@ class _SignedOutView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Demo sign-in — no real Google account needed yet',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.white38),
+              style: TextStyle(
+                  fontSize: 12, color: cs.onSurface.withValues(alpha: 0.38)),
             ),
           ],
         ),
@@ -125,13 +129,17 @@ class _SignedInView extends StatelessWidget {
           builder: (context, social, _) {
             final friends = social.friends;
             if (friends.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
                     'No friends yet.\nAdd one to start a challenge.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white38),
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.38)),
                   ),
                 ),
               );
@@ -175,7 +183,7 @@ class _SignedInView extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: Theme.of(ctx).colorScheme.surfaceContainer,
         title: const Text('Sign out?'),
         content: const Text('Your friends and challenges stay on this device.'),
         actions: [
@@ -204,10 +212,11 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -226,8 +235,9 @@ class _ProfileHeader extends StatelessWidget {
                 if (email.isNotEmpty)
                   Text(
                     email,
-                    style:
-                        const TextStyle(color: Colors.white60, fontSize: 13),
+                    style: TextStyle(
+                        color: cs.onSurface.withValues(alpha: 0.60),
+                        fontSize: 13),
                   ),
               ],
             ),
@@ -251,7 +261,9 @@ class _FriendTile extends StatelessWidget {
       title: Text(friend.displayName),
       subtitle: friend.email == null ? null : Text(friend.email!),
       trailing: IconButton(
-        icon: const Icon(Icons.close, size: 18, color: Colors.white38),
+        icon: Icon(Icons.close,
+            size: 18,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
         onPressed: () =>
             context.read<ChallengeProvider>().removeFriend(friend.id),
       ),
@@ -281,7 +293,7 @@ class _Avatar extends StatelessWidget {
         style: TextStyle(
           fontSize: size * 0.4,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

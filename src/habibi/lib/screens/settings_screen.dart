@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,14 +18,26 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
-          ListTile(
+        children: [
+          Consumer<ThemeProvider>(
+            builder: (context, theme, _) => SwitchListTile(
+              secondary: Icon(
+                theme.isDark ? Icons.dark_mode : Icons.light_mode,
+              ),
+              title: const Text('Dark mode'),
+              subtitle: Text(theme.isDark ? 'On' : 'Off'),
+              value: theme.isDark,
+              onChanged: (_) => theme.toggle(),
+            ),
+          ),
+          const Divider(),
+          const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('About habibi'),
             subtitle: Text(
                 'A minimal habit tracker. School project for the DSAP course.'),
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.tag),
             title: Text('Version'),
             subtitle: Text('0.1.0 (prototype)'),

@@ -86,7 +86,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
           children: [
             Text(
               DateFormat('MMMM yyyy').format(_visibleMonth),
-              style: const TextStyle(fontSize: 13, color: Colors.white70),
+              style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.70)),
             ),
             Row(
               children: [
@@ -118,14 +123,15 @@ class _WeekHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final muted =
+        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54);
     return Row(
       children: days
           .map((d) => Expanded(
                 child: Center(
                   child: Text(
                     d,
-                    style: const TextStyle(
-                        fontSize: 11, color: Colors.white54),
+                    style: TextStyle(fontSize: 11, color: muted),
                   ),
                 ),
               ))
@@ -153,10 +159,14 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final bg = isDone
         ? color.withValues(alpha: 0.85)
         : (isToday ? color.withValues(alpha: 0.18) : Colors.transparent);
-    final fg = isFuture ? Colors.white24 : Colors.white;
+    // Done cells sit on the habit color, so keep their text white for contrast.
+    final fg = isDone
+        ? Colors.white
+        : (isFuture ? onSurface.withValues(alpha: 0.24) : onSurface);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
