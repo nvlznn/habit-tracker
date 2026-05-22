@@ -14,6 +14,7 @@ class ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final color = Color(challenge.colorValue);
     final mutual = mutualDays(challenge.allCheckins);
     final streak = mutualStreak(challenge.allCheckins);
@@ -30,7 +31,7 @@ class ChallengeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: cs.surfaceContainer,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -42,7 +43,7 @@ class ChallengeCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF252525),
+                    color: cs.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -65,8 +66,9 @@ class ChallengeCard extends StatelessWidget {
                       ),
                       Text(
                         '${challenge.participantIds.length} people',
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.white38),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSurface.withValues(alpha: 0.38)),
                       ),
                     ],
                   ),
@@ -91,17 +93,21 @@ class _StreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Icon(Icons.local_fire_department,
-            size: 20, color: streak > 0 ? color : Colors.white24),
+            size: 20,
+            color: streak > 0 ? color : cs.onSurface.withValues(alpha: 0.24)),
         const SizedBox(width: 2),
         Text(
           '$streak',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: streak > 0 ? Colors.white : Colors.white38,
+            color: streak > 0
+                ? cs.onSurface
+                : cs.onSurface.withValues(alpha: 0.38),
           ),
         ),
       ],

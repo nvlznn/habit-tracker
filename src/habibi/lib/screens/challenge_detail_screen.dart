@@ -28,6 +28,7 @@ class ChallengeDetailScreen extends StatelessWidget {
           );
         }
         final meId = auth.currentUser?.id;
+        final cs = Theme.of(context).colorScheme;
         final color = Color(challenge.colorValue);
         final mutual = mutualDays(challenge.allCheckins);
         final streak = mutualStreak(challenge.allCheckins);
@@ -80,7 +81,9 @@ class ChallengeDetailScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'The streak counts only on days everyone is checked in.',
-                  style: TextStyle(fontSize: 12, color: Colors.white54),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: cs.onSurface.withValues(alpha: 0.54)),
                 ),
                 const SizedBox(height: 12),
                 for (final id in challenge.participantIds)
@@ -105,7 +108,7 @@ class ChallengeDetailScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: Theme.of(ctx).colorScheme.surfaceContainer,
         title: const Text('Delete challenge?'),
         content: const Text('This cannot be undone.'),
         actions: [
@@ -135,13 +138,14 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: const Color(0xFF252525),
+            color: cs.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -162,8 +166,9 @@ class _Header extends StatelessWidget {
               if (challenge.description.isNotEmpty)
                 Text(
                   challenge.description,
-                  style:
-                      const TextStyle(color: Colors.white60, fontSize: 13),
+                  style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.60),
+                      fontSize: 13),
                 ),
             ],
           ),
@@ -181,11 +186,13 @@ class _SharedStreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return _Card(
       child: Row(
         children: [
           Icon(Icons.local_fire_department,
-              size: 40, color: streak > 0 ? color : Colors.white24),
+              size: 40,
+              color: streak > 0 ? color : cs.onSurface.withValues(alpha: 0.24)),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,9 +203,10 @@ class _SharedStreakCard extends StatelessWidget {
                     fontSize: 32, fontWeight: FontWeight.w800, height: 1),
               ),
               const SizedBox(height: 2),
-              const Text(
+              Text(
                 'shared day streak',
-                style: TextStyle(color: Colors.white60, fontSize: 13),
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.60), fontSize: 13),
               ),
             ],
           ),
@@ -230,13 +238,14 @@ class _ParticipantRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final today = todayKey();
     final doneToday = dateKeys.contains(today);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -255,8 +264,9 @@ class _ParticipantRow extends StatelessWidget {
                     ),
                     Text(
                       isMe ? 'tap to check in today' : 'tap to simulate today',
-                      style: const TextStyle(
-                          fontSize: 11, color: Colors.white38),
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onSurface.withValues(alpha: 0.38)),
                     ),
                   ],
                 ),
@@ -322,7 +332,7 @@ class _Card extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,

@@ -1,0 +1,18 @@
+# Normalize line endings across all machines.
+# "text=auto" lets git detect which files are text.
+# "eol=lf" keeps Unix-style LF endings in the working copy too,
+# which stops the "LF will be replaced by CRLF" warning on Windows.
+* text=auto eol=lf
+
+# Treat these as binary so git never touches their bytes.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+*.jar  binary
+*.keystore binary

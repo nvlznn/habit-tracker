@@ -14,6 +14,7 @@ class ColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = Theme.of(context).colorScheme.onSurface;
     return GridView.count(
       crossAxisCount: 7,
       shrinkWrap: true,
@@ -31,7 +32,7 @@ class ColorPicker extends StatelessWidget {
               color: c,
               borderRadius: BorderRadius.circular(10),
               border: selected
-                  ? Border.all(color: Colors.white, width: 2.5)
+                  ? Border.all(color: borderColor, width: 2.5)
                   : null,
             ),
           ),

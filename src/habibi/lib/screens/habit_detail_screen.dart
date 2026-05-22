@@ -23,6 +23,7 @@ class HabitDetailScreen extends StatelessWidget {
             body: Center(child: Text('Habit not found')),
           );
         }
+        final cs = Theme.of(context).colorScheme;
         final color = Color(habit.colorValue);
         final streak = currentStreak(habit.dateKeys);
         final longest = longestStreak(habit.dateKeys);
@@ -58,7 +59,7 @@ class HabitDetailScreen extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF252525),
+                        color: cs.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -82,8 +83,8 @@ class HabitDetailScreen extends StatelessWidget {
                           if (habit.description.isNotEmpty)
                             Text(
                               habit.description,
-                              style: const TextStyle(
-                                color: Colors.white60,
+                              style: TextStyle(
+                                color: cs.onSurface.withValues(alpha: 0.60),
                                 fontSize: 13,
                               ),
                             ),
@@ -96,7 +97,7 @@ class HabitDetailScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: cs.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: SingleChildScrollView(
@@ -139,7 +140,7 @@ class HabitDetailScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: cs.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: MonthCalendar(
@@ -167,10 +168,11 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -185,9 +187,9 @@ class _StatChip extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: Colors.white60,
+              color: cs.onSurface.withValues(alpha: 0.60),
             ),
             textAlign: TextAlign.center,
           ),
