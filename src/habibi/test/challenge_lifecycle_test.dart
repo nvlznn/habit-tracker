@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/models/challenge.dart';
-import '../lib/utils/challenge_lifecycle.dart';
-import '../lib/utils/date_key.dart';
+import 'package:habibi/models/challenge.dart';
+import 'package:habibi/utils/challenge_lifecycle.dart';
+import 'package:habibi/utils/date_key.dart';
 
 /// A check-in date-key for the given epoch day (round-trips through date_key).
 String keyForDay(int epoch) => dateKey(fromEpochDay(epoch));
