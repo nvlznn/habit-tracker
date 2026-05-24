@@ -26,7 +26,9 @@ class HabitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final color = Color(habit.colorValue);
-    final today = todayKey();
+    // Use the demo simulated clock so the "add day" button moves the habit's
+    // "today" too (check-ins, the highlighted square, and the grid all follow).
+    final today = simulatedTodayKey();
     final isDoneToday = habit.dateKeys.contains(today);
 
     final card = Container(
@@ -77,7 +79,11 @@ class HabitCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          DotGrid(dateKeys: habit.dateKeys, color: color),
+          DotGrid(
+            dateKeys: habit.dateKeys,
+            color: color,
+            asOf: fromEpochDay(simulatedTodayEpochDay()),
+          ),
         ],
       ),
     );

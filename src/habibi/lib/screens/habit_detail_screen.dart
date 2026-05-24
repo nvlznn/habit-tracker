@@ -25,7 +25,12 @@ class HabitDetailScreen extends StatelessWidget {
         }
         final cs = Theme.of(context).colorScheme;
         final color = Color(habit.colorValue);
-        final streak = currentStreak(habit.dateKeys);
+        // Follow the demo simulated clock (the "add day" button) like the rest
+        // of the habit UI, so the streak counts up to the simulated today.
+        final streak = currentStreak(
+          habit.dateKeys,
+          asOf: fromEpochDay(simulatedTodayEpochDay()),
+        );
         final longest = longestStreak(habit.dateKeys);
 
         return Scaffold(
@@ -108,6 +113,7 @@ class HabitDetailScreen extends StatelessWidget {
                       weeks: 26,
                       dotSize: 12,
                       spacing: 4,
+                      asOf: fromEpochDay(simulatedTodayEpochDay()),
                     ),
                   ),
                 ),
@@ -146,6 +152,7 @@ class HabitDetailScreen extends StatelessWidget {
                   child: MonthCalendar(
                     dateKeys: habit.dateKeys,
                     color: color,
+                    asOf: fromEpochDay(simulatedTodayEpochDay()),
                     onToggleDate: (date) =>
                         provider.toggleDay(habit.id, dateKey(date)),
                   ),
