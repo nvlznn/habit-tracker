@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(flutter analyze *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(gh run *)",
+      "Bash(gh api *)",
+      "Bash(gh workflow *)",
+      "Bash(curl -s -L https://nvlznn.github.io/habit-tracker/)"
     ]
   }
 }

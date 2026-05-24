@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Habibi',
+          'Nokapp',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         leading: IconButton(
