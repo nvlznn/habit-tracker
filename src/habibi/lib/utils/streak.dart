@@ -1,8 +1,12 @@
 import 'date_key.dart';
 
-int currentStreak(Set<String> dateKeys) {
+/// Length of the current run of consecutive done-days ending at [asOf]
+/// (default: the real today). Pass [asOf] to count from a different "today" —
+/// challenges use the demo simulated clock so the streak lines up with the
+/// check-ins, which are stamped with that same clock.
+int currentStreak(Set<String> dateKeys, {DateTime? asOf}) {
   if (dateKeys.isEmpty) return 0;
-  final today = DateTime.now();
+  final today = asOf ?? DateTime.now();
   var cursor = DateTime(today.year, today.month, today.day);
   if (!dateKeys.contains(dateKey(cursor))) {
     cursor = cursor.subtract(const Duration(days: 1));
@@ -30,7 +34,12 @@ Set<String> mutualDays(Iterable<Set<String>> all) {
 }
 
 /// Shared streak: the [currentStreak] over the days everyone did the habit.
-int mutualStreak(Iterable<Set<String>> all) => currentStreak(mutualDays(all));
+/// Counts from the simulated "today" so it matches challenge check-ins, which
+/// are recorded with that same clock.
+int mutualStreak(Iterable<Set<String>> all) => currentStreak(
+      mutualDays(all),
+      asOf: fromEpochDay(simulatedTodayEpochDay()),
+    );
 
 int longestStreak(Set<String> dateKeys) {
   if (dateKeys.isEmpty) return 0;

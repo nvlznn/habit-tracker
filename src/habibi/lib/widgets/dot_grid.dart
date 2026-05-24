@@ -10,6 +10,7 @@ class DotGrid extends StatelessWidget {
     this.weeks = 24,
     this.dotSize = 8,
     this.spacing = 3,
+    this.asOf,
   });
 
   final Set<String> dateKeys;
@@ -18,9 +19,14 @@ class DotGrid extends StatelessWidget {
   final double dotSize;
   final double spacing;
 
+  /// The "today" the grid is anchored on (its last column). Defaults to the
+  /// real today; challenge grids pass the demo simulated clock so check-ins
+  /// stamped with that clock land in the visible range rather than the future.
+  final DateTime? asOf;
+
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final today = asOf ?? DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
     final currentWeekStart =
         todayDate.subtract(Duration(days: todayDate.weekday - 1));
