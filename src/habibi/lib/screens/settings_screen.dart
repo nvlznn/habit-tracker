@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/billing_repository.dart';
 import '../providers/challenge_provider.dart';
 import '../providers/entitlement_provider.dart';
+import '../providers/habit_provider.dart';
 import '../providers/theme_provider.dart';
 import '../utils/date_key.dart';
 import 'paywall_screen.dart';
@@ -214,11 +215,13 @@ class _DemoClockSectionState extends State<_DemoClockSection> {
   void _add(int days) {
     setState(() => demoDayOffset += days);
     context.read<ChallengeProvider>().refresh();
+    context.read<HabitProvider>().refresh();
   }
 
   void _reset() {
     setState(() => demoDayOffset = 0);
     context.read<ChallengeProvider>().refresh();
+    context.read<HabitProvider>().refresh();
   }
 
   @override
@@ -244,8 +247,9 @@ class _DemoClockSectionState extends State<_DemoClockSection> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Moves "today" forward for challenge check-ins and the 7-day rule, so '
-          'you can watch members get dropped without waiting a week.',
+          'Moves "today" forward for habit check-ins, challenge check-ins, and '
+          'the 7-day rule, so you can watch streaks build and members get '
+          'dropped without waiting a week.',
           style:
               TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.45)),
         ),

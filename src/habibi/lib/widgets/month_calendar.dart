@@ -9,11 +9,17 @@ class MonthCalendar extends StatefulWidget {
     required this.dateKeys,
     required this.color,
     required this.onToggleDate,
+    this.asOf,
   });
 
   final Set<String> dateKeys;
   final Color color;
   final void Function(DateTime date) onToggleDate;
+
+  /// The "today" the calendar opens on and uses to disable future days.
+  /// Defaults to the real today; pass the demo simulated clock so the "add day"
+  /// button moves "today" here too.
+  final DateTime? asOf;
 
   @override
   State<MonthCalendar> createState() => _MonthCalendarState();
@@ -25,7 +31,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
+    final now = widget.asOf ?? DateTime.now();
     _visibleMonth = DateTime(now.year, now.month);
   }
 
@@ -38,7 +44,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final today = widget.asOf ?? DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
     final firstOfMonth = _visibleMonth;
     final daysInMonth =

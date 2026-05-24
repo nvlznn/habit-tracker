@@ -18,6 +18,11 @@ class HabitProvider extends ChangeNotifier {
 
   Habit? byId(String id) => _box.get(id);
 
+  /// Force listeners to rebuild without changing any habit data. Used when the
+  /// demo clock ("add day") moves "today", so the cards re-evaluate against the
+  /// new simulated date.
+  void refresh() => notifyListeners();
+
   Future<Habit> create({
     required String name,
     required String description,
