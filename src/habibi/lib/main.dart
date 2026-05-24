@@ -66,7 +66,7 @@ class HabibiApp extends StatelessWidget {
     // light/dark, so every screen repaints with the new colors.
     final themeMode = context.watch<ThemeProvider>().themeMode;
     return MaterialApp(
-      title: 'habibi',
+      title: 'Nokapp - Habit Tracker',
       debugShowCheckedModeBanner: false,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
