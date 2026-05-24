@@ -26,17 +26,14 @@ class _RootScreenState extends State<RootScreen> {
     _NavData(
       icon: Icons.check_circle_outline,
       selectedIcon: Icons.check_circle,
-      label: 'Habits',
     ),
     _NavData(
       icon: Icons.local_fire_department_outlined,
       selectedIcon: Icons.local_fire_department,
-      label: 'Challenges',
     ),
     _NavData(
       icon: Icons.people_outline,
       selectedIcon: Icons.people,
-      label: 'Friends',
     ),
   ];
 
@@ -68,16 +65,14 @@ class _NavData {
   const _NavData({
     required this.icon,
     required this.selectedIcon,
-    required this.label,
   });
 
   final IconData icon;
   final IconData selectedIcon;
-  final String label;
 }
 
-/// A single tab. Unselected tabs show just the icon; the selected tab expands
-/// into a translucent, rounded pill containing the icon and its label.
+/// A single tab — icon only. The selected tab sits in a translucent, rounded
+/// pill and uses the filled icon variant; unselected tabs are a dimmed outline.
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.data,
@@ -105,28 +100,10 @@ class _NavItem extends StatelessWidget {
           color: selected ? cs.primary.withValues(alpha: 0.14) : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              selected ? data.selectedIcon : data.icon,
-              size: 24,
-              color: selected
-                  ? cs.primary
-                  : cs.onSurface.withValues(alpha: 0.55),
-            ),
-            if (selected) ...[
-              const SizedBox(width: 8),
-              Text(
-                data.label,
-                style: TextStyle(
-                  color: cs.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ],
+        child: Icon(
+          selected ? data.selectedIcon : data.icon,
+          size: 24,
+          color: selected ? cs.primary : cs.onSurface.withValues(alpha: 0.55),
         ),
       ),
     );
