@@ -67,9 +67,15 @@ class Challenge {
   Set<String> checkinsFor(String participantId) =>
       checkins[participantId] ?? <String>{};
 
-  /// Each participant's done-days, in participant order. Drives the streak math;
-  /// a participant with no entry contributes an empty set (so the streak is 0).
+  /// Each participant's done-days, in participant order. A participant with no
+  /// entry contributes an empty set.
   Iterable<Set<String>> get allCheckins => participantIds.map(checkinsFor);
+
+  /// Done-days for participants still in the challenge (dropped ones excluded).
+  /// Drives the shared streak: a day counts only when every *active* participant
+  /// checked in, so a dropped member's stale history no longer breaks it.
+  Iterable<Set<String>> get activeCheckins =>
+      activeParticipantIds.map(checkinsFor);
 
   /// The day this challenge began (epoch day).
   int get startEpochDay => epochDay(createdAt);

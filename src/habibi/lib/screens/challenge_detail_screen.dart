@@ -30,8 +30,8 @@ class ChallengeDetailScreen extends StatelessWidget {
         final meId = auth.currentUser?.id;
         final cs = Theme.of(context).colorScheme;
         final color = Color(challenge.colorValue);
-        final mutual = mutualDays(challenge.allCheckins);
-        final streak = mutualStreak(challenge.allCheckins);
+        final mutual = mutualDays(challenge.activeCheckins);
+        final streak = mutualStreak(challenge.activeCheckins);
         final friendsById = {
           for (final f in social.friends) f.id: f.displayName,
         };
@@ -62,14 +62,14 @@ class ChallengeDetailScreen extends StatelessWidget {
                 _SharedStreakCard(streak: streak, color: color),
                 const SizedBox(height: 16),
                 _Card(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
+                  child: _EndAlignedScroll(
                     child: DotGrid(
                       dateKeys: mutual,
                       color: color,
                       weeks: 26,
                       dotSize: 12,
                       spacing: 4,
+                      asOf: fromEpochDay(simulatedTodayEpochDay()),
                     ),
                   ),
                 ),
@@ -281,9 +281,13 @@ class _ParticipantRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DotGrid(dateKeys: dateKeys, color: color, weeks: 26),
+          _EndAlignedScroll(
+            child: DotGrid(
+              dateKeys: dateKeys,
+              color: color,
+              weeks: 26,
+              asOf: fromEpochDay(simulatedTodayEpochDay()),
+            ),
           ),
         ],
       ),
@@ -336,6 +340,47 @@ class _Card extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,
+    );
+  }
+}
+
+/// A horizontal scroll view that starts scrolled to its end, so the most recent
+/// (rightmost) columns of a [DotGrid] — including today — are visible by
+/// default instead of the oldest weeks. Jumps once after first layout; if the
+/// content already fits, [maxScrollExtent] is 0 and it stays put.
+class _EndAlignedScroll extends StatefulWidget {
+  const _EndAlignedScroll({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_EndAlignedScroll> createState() => _EndAlignedScrollState();
+}
+
+class _EndAlignedScrollState extends State<_EndAlignedScroll> {
+  final _controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_controller.hasClients) return;
+      _controller.jumpTo(_controller.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: _controller,
+      scrollDirection: Axis.horizontal,
+      child: widget.child,
     );
   }
 }

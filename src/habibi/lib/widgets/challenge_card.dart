@@ -19,8 +19,8 @@ class ChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final color = Color(challenge.colorValue);
-    final mutual = mutualDays(challenge.allCheckins);
-    final streak = mutualStreak(challenge.allCheckins);
+    final mutual = mutualDays(challenge.activeCheckins);
+    final streak = mutualStreak(challenge.activeCheckins);
 
     // Warning based on the most overdue active participant.
     final today = simulatedTodayEpochDay();
@@ -98,7 +98,11 @@ class ChallengeCard extends StatelessWidget {
               _WarningBanner(daysLeft: daysLeft, endsChallenge: endsNext),
             ],
             const SizedBox(height: 16),
-            DotGrid(dateKeys: mutual, color: color),
+            DotGrid(
+              dateKeys: mutual,
+              color: color,
+              asOf: fromEpochDay(simulatedTodayEpochDay()),
+            ),
           ],
         ),
       ),
