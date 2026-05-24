@@ -63,23 +63,42 @@ class HabitCard extends StatelessWidget {
               const SizedBox(width: 12),
               // Group name + streak in one Expanded region with the check button
               // outside it, so the name shows in full and only ellipsizes right
-              // before the streak would reach the check button.
+              // before the streak would reach the check button. The description
+              // (when present) sits on a second line below.
               Expanded(
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(
-                      child: Text(
-                        habit.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            habit.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        _StreakBadge(streak: streak, color: color),
+                      ],
+                    ),
+                    if (habit.description.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        habit.description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    _StreakBadge(streak: streak, color: color),
+                    ],
                   ],
                 ),
               ),
