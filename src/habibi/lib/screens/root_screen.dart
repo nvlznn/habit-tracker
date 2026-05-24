@@ -22,30 +22,89 @@ class _RootScreenState extends State<RootScreen> {
     FriendsScreen(),
   ];
 
+  static const _items = [
+    _NavData(
+      icon: Icons.check_circle_outline,
+      selectedIcon: Icons.check_circle,
+    ),
+    _NavData(
+      icon: Icons.local_fire_department_outlined,
+      selectedIcon: Icons.local_fire_department,
+    ),
+    _NavData(
+      icon: Icons.people_outline,
+      selectedIcon: Icons.people,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle),
-            label: 'Habits',
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              for (var i = 0; i < _items.length; i++)
+                _NavItem(
+                  data: _items[i],
+                  selected: _index == i,
+                  onTap: () => setState(() => _index = i),
+                ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.local_fire_department_outlined),
-            selectedIcon: Icon(Icons.local_fire_department),
-            label: 'Challenges',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'Friends',
-          ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavData {
+  const _NavData({
+    required this.icon,
+    required this.selectedIcon,
+  });
+
+  final IconData icon;
+  final IconData selectedIcon;
+}
+
+/// A single tab — icon only. The selected tab sits in a translucent, rounded
+/// pill and uses the filled icon variant; unselected tabs are a dimmed outline.
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.data,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final _NavData data;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          // Translucent tint so the pill reads as "glassy" rather than a solid
+          // block; fully transparent when the tab isn't selected.
+          color: selected ? cs.primary.withValues(alpha: 0.14) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Icon(
+          selected ? data.selectedIcon : data.icon,
+          size: 24,
+          color: selected ? cs.primary : cs.onSurface.withValues(alpha: 0.55),
+        ),
       ),
     );
   }

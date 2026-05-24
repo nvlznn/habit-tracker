@@ -76,7 +76,7 @@ class _Dot extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(2),
+        shape: BoxShape.circle,
       ),
     );
   }

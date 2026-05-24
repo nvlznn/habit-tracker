@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
 
 /// Another person you can share a challenge with. In the local demo friends are
-/// added by hand (including a one-tap "demo friend"); later they'll come from
-/// the cloud. A friend's [id] is used as a participant id inside a [Challenge].
+/// added by hand (entering a name); later they'll come from the cloud. A
+/// friend's [id] is used as a participant id inside a [Challenge].
 class Friend {
   Friend({
     required this.id,

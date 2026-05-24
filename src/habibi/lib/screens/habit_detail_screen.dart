@@ -67,7 +67,7 @@ class HabitDetailScreen extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(12),
+                        shape: BoxShape.circle,
                       ),
                       child: Icon(
                         IconData(habit.iconCodePoint,
@@ -154,50 +154,39 @@ class HabitDetailScreen extends StatelessWidget {
   }
 }
 
-/// The year heatmap, which is wider than the card so it scrolls horizontally.
-/// Opens scrolled to the right end so the most recent (active) days show first.
-class _Heatmap extends StatefulWidget {
+/// The year heatmap. It fits the card width exactly: we measure the space and
+/// draw only as many whole day-columns as fit, so the grid fills edge to edge
+/// with no partial column clipped at the left. (The old version was wider than
+/// the card and scrolled to the right, which left a half-cut column on the left.)
+/// The rightmost column is always today.
+class _Heatmap extends StatelessWidget {
   const _Heatmap({required this.dateKeys, required this.color});
 
   final Set<String> dateKeys;
   final Color color;
 
-  @override
-  State<_Heatmap> createState() => _HeatmapState();
-}
-
-class _HeatmapState extends State<_Heatmap> {
-  final _controller = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_controller.hasClients) {
-        _controller.jumpTo(_controller.position.maxScrollExtent);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  static const double _dotSize = 12;
+  static const double _spacing = 4;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: _controller,
-      scrollDirection: Axis.horizontal,
-      child: DotGrid(
-        dateKeys: widget.dateKeys,
-        color: widget.color,
-        weeks: 26,
-        dotSize: 12,
-        spacing: 4,
-        asOf: fromEpochDay(simulatedTodayEpochDay()),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Each column is one dot plus the gap before it; the first column has no
+        // leading gap, so add one spacing back before dividing.
+        final columns =
+            ((constraints.maxWidth + _spacing) / (_dotSize + _spacing))
+                .floor()
+                .clamp(1, 53);
+        return DotGrid(
+          dateKeys: dateKeys,
+          color: color,
+          weeks: columns,
+          dotSize: _dotSize,
+          spacing: _spacing,
+          asOf: fromEpochDay(simulatedTodayEpochDay()),
+        );
+      },
     );
   }
 }
@@ -220,7 +209,7 @@ class _SquareButton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           color: cs.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(12),
+          shape: BoxShape.circle,
         ),
         child: Icon(icon, size: 20, color: cs.onSurface.withValues(alpha: 0.8)),
       ),

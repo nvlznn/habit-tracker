@@ -30,7 +30,7 @@ class IconPicker extends StatelessWidget {
               color: selected
                   ? cs.onSurface.withValues(alpha: 0.12)
                   : cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(10),
+              shape: BoxShape.circle,
               border: selected
                   ? Border.all(color: cs.onSurface, width: 1.5)
                   : null,

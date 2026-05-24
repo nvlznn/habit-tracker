@@ -146,7 +146,7 @@ class _Header extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: cs.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(12),
+            shape: BoxShape.circle,
           ),
           child: Icon(
             IconData(challenge.iconCodePoint, fontFamily: 'MaterialIcons'),
@@ -246,7 +246,7 @@ class _ParticipantRow extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,7 +316,7 @@ class _CheckSquare extends StatelessWidget {
         height: 44,
         decoration: BoxDecoration(
           color: done ? color : color.withValues(alpha: 0.25),
-          borderRadius: BorderRadius.circular(10),
+          shape: BoxShape.circle,
         ),
         // Always show the check; it's white when done, and a dimmed
         // color when not, so the button reads as "tap to check" rather
@@ -342,7 +342,7 @@ class _Card extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: child,
     );
