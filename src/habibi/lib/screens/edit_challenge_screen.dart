@@ -184,6 +184,9 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
   InputDecoration _inputDecoration(BuildContext context, String hint) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+      ),
       filled: true,
       fillColor: Theme.of(context).colorScheme.surfaceContainer,
       border: OutlineInputBorder(
