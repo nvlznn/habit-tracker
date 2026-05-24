@@ -151,14 +151,6 @@ class _SignedInView extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: () => context
-              .read<ChallengeProvider>()
-              .addFriend(displayName: 'Demo Friend'),
-          icon: const Icon(Icons.smart_toy_outlined, size: 18),
-          label: const Text('Add demo friend'),
-        ),
         const SizedBox(height: 32),
         TextButton.icon(
           onPressed: () => _signOut(context),

@@ -5,6 +5,7 @@ import '../models/habit.dart';
 import '../providers/habit_provider.dart';
 import '../screens/habit_detail_screen.dart';
 import '../utils/date_key.dart';
+import '../utils/streak.dart';
 import 'dot_grid.dart';
 
 class HabitCard extends StatelessWidget {
@@ -30,6 +31,11 @@ class HabitCard extends StatelessWidget {
     // "today" too (check-ins, the highlighted square, and the grid all follow).
     final today = simulatedTodayKey();
     final isDoneToday = habit.dateKeys.contains(today);
+    // Same calc as the detail view; follows the demo clock so "add day" moves it.
+    final streak = currentStreak(
+      habit.dateKeys,
+      asOf: fromEpochDay(simulatedTodayEpochDay()),
+    );
 
     final card = Container(
       padding: const EdgeInsets.all(16),
@@ -55,17 +61,29 @@ class HabitCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
+              // Group name + streak in one Expanded region with the check button
+              // outside it, so the name shows in full and only ellipsizes right
+              // before the streak would reach the check button.
               Expanded(
-                child: Text(
-                  habit.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        habit.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _StreakBadge(streak: streak, color: color),
+                  ],
                 ),
               ),
+              const SizedBox(width: 12),
               if (locked)
                 Icon(Icons.lock_outline,
                     size: 22, color: cs.onSurface.withValues(alpha: 0.5))
@@ -103,6 +121,36 @@ class HabitCard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => HabitDetailScreen.show(context, habit.id),
       child: card,
+    );
+  }
+}
+
+/// Small flame + count shown right after the habit name. Tinted with the habit
+/// color when there's an active streak, dimmed grey when the streak is 0.
+class _StreakBadge extends StatelessWidget {
+  const _StreakBadge({required this.streak, required this.color});
+
+  final int streak;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tint = streak > 0 ? color : cs.onSurface.withValues(alpha: 0.35);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.local_fire_department, size: 16, color: tint),
+        const SizedBox(width: 3),
+        Text(
+          '$streak',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: tint,
+          ),
+        ),
+      ],
     );
   }
 }
