@@ -44,8 +44,11 @@ jobs:
 
       # --base-href MUST match the repo name with slashes, or the site loads
       # blank because it can't find its own files under /habit-tracker/.
+      # --no-tree-shake-icons is required because habits/challenges build their
+      # IconData from a saved code point (user-chosen icons), which a release
+      # build can't tree-shake; this keeps the full icon font instead.
       - name: Build web
-        run: flutter build web --release --base-href "/habit-tracker/"
+        run: flutter build web --release --no-tree-shake-icons --base-href "/habit-tracker/"
 
       - name: Upload the built site as the Pages artifact
         uses: actions/upload-pages-artifact@v3
