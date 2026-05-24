@@ -30,7 +30,7 @@ class ColorPicker extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: c,
-              borderRadius: BorderRadius.circular(10),
+              shape: BoxShape.circle,
               border: selected
                   ? Border.all(color: borderColor, width: 2.5)
                   : null,

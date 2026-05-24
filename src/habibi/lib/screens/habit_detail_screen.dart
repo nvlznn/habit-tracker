@@ -67,7 +67,7 @@ class HabitDetailScreen extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(12),
+                        shape: BoxShape.circle,
                       ),
                       child: Icon(
                         IconData(habit.iconCodePoint,
@@ -220,7 +220,7 @@ class _SquareButton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           color: cs.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(12),
+          shape: BoxShape.circle,
         ),
         child: Icon(icon, size: 20, color: cs.onSurface.withValues(alpha: 0.8)),
       ),

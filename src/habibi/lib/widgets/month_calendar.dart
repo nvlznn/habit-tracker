@@ -179,7 +179,7 @@ class _DayCell extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(8),
+          shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
         child: Text(
