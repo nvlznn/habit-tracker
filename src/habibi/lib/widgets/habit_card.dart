@@ -136,9 +136,14 @@ class _CheckSquare extends StatelessWidget {
           color: done ? color : color.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: done
-            ? const Icon(Icons.check, size: 22, color: Colors.white)
-            : null,
+        // Always show the check; it's white when done, and a dimmed habit
+        // color when not, so the button reads as "tap to check" rather than
+        // looking empty.
+        child: Icon(
+          Icons.check,
+          size: 22,
+          color: done ? Colors.white : color.withValues(alpha: 0.45),
+        ),
       ),
     );
   }
