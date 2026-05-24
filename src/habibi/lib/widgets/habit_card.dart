@@ -101,13 +101,7 @@ class HabitCard extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => HabitDetailScreen(habitId: habit.id),
-          ),
-        );
-      },
+      onTap: () => HabitDetailScreen.show(context, habit.id),
       child: card,
     );
   }
