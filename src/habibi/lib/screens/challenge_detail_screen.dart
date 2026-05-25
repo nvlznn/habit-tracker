@@ -86,7 +86,10 @@ class ChallengeDetailScreen extends StatelessWidget {
                       color: cs.onSurface.withValues(alpha: 0.54)),
                 ),
                 const SizedBox(height: 12),
-                for (final id in challenge.participantIds)
+                // Only members still in the challenge — dropped (kicked-out)
+                // ones no longer appear here; their history lives in the
+                // graveyard.
+                for (final id in challenge.activeParticipantIds)
                   _ParticipantRow(
                     challengeId: challenge.id,
                     participantId: id,

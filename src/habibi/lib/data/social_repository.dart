@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/challenge.dart';
 import '../models/friend.dart';
+import '../utils/date_key.dart';
 
 /// Friends + shared challenges. Swap [LocalSocialRepository] for a
 /// `FirebaseSocialRepository` (same methods) to make challenges sync between two
@@ -79,7 +80,11 @@ class LocalSocialRepository implements SocialRepository {
       iconCodePoint: iconCodePoint,
       participantIds: participantIds,
       checkins: {for (final p in participantIds) p: <String>{}},
-      createdAt: DateTime.now(),
+      // Stamp the birthday on the demo clock so a challenge created while the
+      // simulated clock is advanced starts its 7-day timers from "today", not
+      // from the real date (which would make it instantly overdue). 0 in
+      // normal use, so this is just DateTime.now() for real users.
+      createdAt: DateTime.now().add(Duration(days: demoDayOffset)),
     );
     await _challengesBox.put(challenge.id, challenge);
     return challenge;
