@@ -13,7 +13,6 @@ import 'providers/auth_provider.dart';
 import 'providers/challenge_provider.dart';
 import 'providers/entitlement_provider.dart';
 import 'providers/habit_provider.dart';
-import 'providers/theme_provider.dart';
 import 'screens/root_screen.dart';
 
 const String _habitsBoxName = 'habits';
@@ -46,7 +45,6 @@ Future<void> main() async {
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (_) => ThemeProvider(settingsBox)),
       ChangeNotifierProvider(create: (_) => HabitProvider(habitsBox)),
       ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
       ChangeNotifierProvider(create: (_) => ChallengeProvider(socialRepository)),
@@ -62,15 +60,13 @@ class HabibiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Watching the ThemeProvider rebuilds the whole app when the user toggles
-    // light/dark, so every screen repaints with the new colors.
-    final themeMode = context.watch<ThemeProvider>().themeMode;
     return MaterialApp(
       title: 'Nokapp - Habit Tracker',
       debugShowCheckedModeBanner: false,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
-      themeMode: themeMode,
+      // The app always follows the device's light/dark setting.
+      themeMode: ThemeMode.system,
       home: const RootScreen(),
     );
   }

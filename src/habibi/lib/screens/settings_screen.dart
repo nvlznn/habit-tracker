@@ -5,7 +5,6 @@ import '../data/billing_repository.dart';
 import '../providers/challenge_provider.dart';
 import '../providers/entitlement_provider.dart';
 import '../providers/habit_provider.dart';
-import '../providers/theme_provider.dart';
 import '../utils/date_key.dart';
 import 'paywall_screen.dart';
 
@@ -14,7 +13,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -28,47 +26,6 @@ class SettingsScreen extends StatelessWidget {
         children: [
           _SectionLabel('Nokapp Pro'),
           const _ProSection(),
-          const Divider(height: 32),
-          _SectionLabel('Appearance'),
-          Consumer<ThemeProvider>(
-            builder: (context, theme, _) => SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<ThemeMode>(
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(
-                    value: ThemeMode.system,
-                    icon: Icon(Icons.brightness_auto),
-                    label: Text('System'),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.light,
-                    icon: Icon(Icons.light_mode),
-                    label: Text('Light'),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.dark,
-                    icon: Icon(Icons.dark_mode),
-                    label: Text('Dark'),
-                  ),
-                ],
-                selected: {theme.themeMode},
-                onSelectionChanged: (selection) =>
-                    theme.setMode(selection.first),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              '"System" follows your device\'s light/dark setting.',
-              style: TextStyle(
-                fontSize: 12,
-                color: cs.onSurface.withValues(alpha: 0.45),
-              ),
-            ),
-          ),
           const Divider(height: 32),
           _SectionLabel('Developer (demo)'),
           const _DemoClockSection(),
