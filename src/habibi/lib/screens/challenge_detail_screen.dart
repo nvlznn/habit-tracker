@@ -7,6 +7,7 @@ import '../providers/challenge_provider.dart';
 import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import '../widgets/dot_grid.dart';
+import '../widgets/glyph.dart';
 
 /// The heart of the feature. Shows the shared streak (the days *everyone*
 /// checked in) plus each participant's own history, and lets you toggle today
@@ -151,8 +152,9 @@ class _Header extends StatelessWidget {
             color: cs.surfaceContainerHigh,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            IconData(challenge.iconCodePoint, fontFamily: 'MaterialIcons'),
+          child: Glyph(
+            emoji: challenge.emoji,
+            codePoint: challenge.iconCodePoint,
             size: 26,
           ),
         ),

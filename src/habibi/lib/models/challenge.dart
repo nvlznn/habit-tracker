@@ -2,6 +2,10 @@ import 'package:hive/hive.dart';
 
 import '../utils/date_key.dart';
 
+/// Sentinel so [Challenge.copyWith] can tell "leave emoji unchanged" apart from
+/// "set emoji to null" (clearing an emoji back to a plain icon).
+const Object _undefined = Object();
+
 /// Whether a challenge is still running or has permanently ended.
 enum ChallengeStatus { active, ended }
 
@@ -44,6 +48,7 @@ class Challenge {
     required this.participantIds,
     required this.checkins,
     required this.createdAt,
+    this.emoji,
     this.status = ChallengeStatus.active,
     this.endedOn,
     List<DropRecord>? dropped,
@@ -54,6 +59,10 @@ class Challenge {
   String description;
   int colorValue;
   int iconCodePoint;
+
+  /// When set, this emoji is shown instead of the Material icon. Null = use the
+  /// icon (the default).
+  String? emoji;
   List<String> participantIds;
   Map<String, Set<String>> checkins;
   DateTime createdAt;
@@ -103,6 +112,7 @@ class Challenge {
     String? description,
     int? colorValue,
     int? iconCodePoint,
+    Object? emoji = _undefined,
     List<String>? participantIds,
     Map<String, Set<String>>? checkins,
     ChallengeStatus? status,
@@ -115,6 +125,7 @@ class Challenge {
       description: description ?? this.description,
       colorValue: colorValue ?? this.colorValue,
       iconCodePoint: iconCodePoint ?? this.iconCodePoint,
+      emoji: identical(emoji, _undefined) ? this.emoji : emoji as String?,
       participantIds: participantIds ?? this.participantIds,
       checkins: checkins ?? this.checkins,
       createdAt: createdAt,
@@ -170,6 +181,12 @@ class ChallengeAdapter extends TypeAdapter<Challenge> {
       }
     }
 
+    // emoji was added after the status block — guard separately for back-compat.
+    String? emoji;
+    if (reader.availableBytes > 0) {
+      emoji = reader.readBool() ? reader.readString() : null;
+    }
+
     return Challenge(
       id: id,
       name: name,
@@ -179,6 +196,7 @@ class ChallengeAdapter extends TypeAdapter<Challenge> {
       participantIds: participantIds,
       checkins: checkins,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMs),
+      emoji: emoji,
       status: status,
       endedOn: endedOn,
       dropped: dropped,
@@ -216,6 +234,11 @@ class ChallengeAdapter extends TypeAdapter<Challenge> {
       writer.writeString(d.participantId);
       writer.writeInt(d.droppedOn);
       writer.writeInt(d.daysPersisted);
+    }
+    // Newer field (see read()'s availableBytes guard for back-compat).
+    writer.writeBool(obj.emoji != null);
+    if (obj.emoji != null) {
+      writer.writeString(obj.emoji!);
     }
   }
 }

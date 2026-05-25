@@ -28,6 +28,7 @@ class HabitProvider extends ChangeNotifier {
     required String description,
     required int colorValue,
     required int iconCodePoint,
+    String? emoji,
   }) async {
     final habit = Habit(
       id: _uuid.v4(),
@@ -35,6 +36,7 @@ class HabitProvider extends ChangeNotifier {
       description: description,
       colorValue: colorValue,
       iconCodePoint: iconCodePoint,
+      emoji: emoji,
       dateKeys: <String>{},
       createdAt: DateTime.now(),
     );

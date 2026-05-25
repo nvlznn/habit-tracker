@@ -9,6 +9,7 @@ import '../utils/challenge_lifecycle.dart';
 import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import 'dot_grid.dart';
+import 'glyph.dart';
 
 /// A challenge in the list, laid out like a habit card: icon, name + shared
 /// streak, a check button (top-right) to mark *my* day, and a dot grid below.
@@ -94,9 +95,9 @@ class ChallengeCard extends StatelessWidget {
                     color: cs.surfaceContainerHigh,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    IconData(challenge.iconCodePoint,
-                        fontFamily: 'MaterialIcons'),
+                  child: Glyph(
+                    emoji: challenge.emoji,
+                    codePoint: challenge.iconCodePoint,
                     size: 22,
                   ),
                 ),

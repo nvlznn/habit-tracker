@@ -20,6 +20,7 @@ abstract class SocialRepository {
     required String description,
     required int colorValue,
     required int iconCodePoint,
+    String? emoji,
     required List<String> participantIds,
   });
   Future<void> updateChallenge(Challenge challenge);
@@ -70,6 +71,7 @@ class LocalSocialRepository implements SocialRepository {
     required String description,
     required int colorValue,
     required int iconCodePoint,
+    String? emoji,
     required List<String> participantIds,
   }) async {
     final challenge = Challenge(
@@ -78,6 +80,7 @@ class LocalSocialRepository implements SocialRepository {
       description: description,
       colorValue: colorValue,
       iconCodePoint: iconCodePoint,
+      emoji: emoji,
       participantIds: participantIds,
       checkins: {for (final p in participantIds) p: <String>{}},
       // Stamp the birthday on the demo clock so a challenge created while the

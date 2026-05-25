@@ -1,5 +1,9 @@
 import 'package:hive/hive.dart';
 
+/// Sentinel so [Habit.copyWith] can tell "leave emoji unchanged" apart from
+/// "set emoji to null" (clearing an emoji back to a plain icon).
+const Object _undefined = Object();
+
 class Habit {
   Habit({
     required this.id,
@@ -9,6 +13,7 @@ class Habit {
     required this.iconCodePoint,
     required this.dateKeys,
     required this.createdAt,
+    this.emoji,
   });
 
   final String id;
@@ -16,6 +21,11 @@ class Habit {
   String description;
   int colorValue;
   int iconCodePoint;
+
+  /// When set, this emoji is shown instead of the Material icon. Null = use the
+  /// icon (the default).
+  String? emoji;
+
   Set<String> dateKeys;
   DateTime createdAt;
 
@@ -24,6 +34,7 @@ class Habit {
     String? description,
     int? colorValue,
     int? iconCodePoint,
+    Object? emoji = _undefined,
     Set<String>? dateKeys,
   }) {
     return Habit(
@@ -32,6 +43,7 @@ class Habit {
       description: description ?? this.description,
       colorValue: colorValue ?? this.colorValue,
       iconCodePoint: iconCodePoint ?? this.iconCodePoint,
+      emoji: identical(emoji, _undefined) ? this.emoji : emoji as String?,
       dateKeys: dateKeys ?? this.dateKeys,
       createdAt: createdAt,
     );
@@ -54,6 +66,13 @@ class HabitAdapter extends TypeAdapter<Habit> {
       for (var i = 0; i < keyCount; i++) reader.readString(),
     };
     final createdAtMs = reader.readInt();
+
+    // emoji was added later — older records have no bytes left here.
+    String? emoji;
+    if (reader.availableBytes > 0) {
+      emoji = reader.readBool() ? reader.readString() : null;
+    }
+
     return Habit(
       id: id,
       name: name,
@@ -62,6 +81,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
       iconCodePoint: iconCodePoint,
       dateKeys: keys,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMs),
+      emoji: emoji,
     );
   }
 
@@ -77,5 +97,10 @@ class HabitAdapter extends TypeAdapter<Habit> {
       writer.writeString(k);
     }
     writer.writeInt(obj.createdAt.millisecondsSinceEpoch);
+    // Newer field (see read()'s availableBytes guard for back-compat).
+    writer.writeBool(obj.emoji != null);
+    if (obj.emoji != null) {
+      writer.writeString(obj.emoji!);
+    }
   }
 }

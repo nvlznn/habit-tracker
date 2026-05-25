@@ -6,7 +6,8 @@ import '../providers/auth_provider.dart';
 import '../providers/challenge_provider.dart';
 import '../utils/palette.dart';
 import '../widgets/color_picker.dart';
-import '../widgets/icon_picker.dart';
+import '../widgets/glyph.dart';
+import 'icon_emoji_picker_screen.dart';
 
 /// Create a new challenge: pick details + the friends to share it with.
 /// A challenge has 2–10 people total (you + 1–9 friends).
@@ -22,6 +23,7 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
   late TextEditingController _descCtrl;
   int _colorValue = habitColors[5].toARGB32();
   int _iconCodePoint = habitIcons[0].codePoint;
+  String? _emoji;
   final Set<String> _selectedIds = {};
 
   /// You + up to 9 friends.
@@ -41,6 +43,26 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
     _nameCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickIcon() async {
+    final choice = await Navigator.of(context).push<IconChoice>(
+      MaterialPageRoute(
+        builder: (_) => IconEmojiPickerScreen(
+          selectedCodePoint: _iconCodePoint,
+          selectedEmoji: _emoji,
+        ),
+      ),
+    );
+    if (choice == null) return;
+    setState(() {
+      if (choice.emoji != null) {
+        _emoji = choice.emoji;
+      } else {
+        _emoji = null;
+        _iconCodePoint = choice.codePoint!;
+      }
+    });
   }
 
   void _toggleFriend(String id) {
@@ -76,6 +98,7 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
           description: _descCtrl.text.trim(),
           colorValue: _colorValue,
           iconCodePoint: _iconCodePoint,
+          emoji: _emoji,
           participantIds: [me.id, ..._selectedIds],
         );
     if (!mounted) return;
@@ -126,14 +149,13 @@ class _EditChallengeScreenState extends State<EditChallengeScreen> {
               selectedIds: _selectedIds,
               onToggle: _toggleFriend,
             ),
-            const SizedBox(height: 20),
-            const _Label('Icon'),
-            const SizedBox(height: 10),
-            IconPicker(
-              selectedCodePoint: _iconCodePoint,
-              onSelect: (cp) => setState(() => _iconCodePoint = cp),
+            const SizedBox(height: 24),
+            IconCircleButton(
+              emoji: _emoji,
+              codePoint: _iconCodePoint,
+              onTap: _pickIcon,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             const _Label('Name'),
             const SizedBox(height: 8),
             TextField(

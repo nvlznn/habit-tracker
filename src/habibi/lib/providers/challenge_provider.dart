@@ -65,6 +65,7 @@ class ChallengeProvider extends ChangeNotifier {
     required String description,
     required int colorValue,
     required int iconCodePoint,
+    String? emoji,
     required List<String> participantIds,
   }) async {
     final challenge = await _repo.createChallenge(
@@ -72,6 +73,7 @@ class ChallengeProvider extends ChangeNotifier {
       description: description,
       colorValue: colorValue,
       iconCodePoint: iconCodePoint,
+      emoji: emoji,
       participantIds: participantIds,
     );
     notifyListeners();

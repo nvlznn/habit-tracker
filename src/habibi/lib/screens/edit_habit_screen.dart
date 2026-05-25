@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
 import '../utils/palette.dart';
 import '../widgets/color_picker.dart';
-import '../widgets/icon_picker.dart';
+import '../widgets/glyph.dart';
+import 'icon_emoji_picker_screen.dart';
 
 class EditHabitScreen extends StatefulWidget {
   const EditHabitScreen({super.key, this.habitId});
@@ -20,6 +21,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
   late TextEditingController _descCtrl;
   late int _colorValue;
   late int _iconCodePoint;
+  String? _emoji;
 
   bool get _isNew => widget.habitId == null;
 
@@ -35,6 +37,27 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
     _colorValue = existing?.colorValue ?? habitColors[7].value;
     _iconCodePoint =
         existing?.iconCodePoint ?? habitIcons[0].codePoint;
+    _emoji = existing?.emoji;
+  }
+
+  Future<void> _pickIcon() async {
+    final choice = await Navigator.of(context).push<IconChoice>(
+      MaterialPageRoute(
+        builder: (_) => IconEmojiPickerScreen(
+          selectedCodePoint: _iconCodePoint,
+          selectedEmoji: _emoji,
+        ),
+      ),
+    );
+    if (choice == null) return;
+    setState(() {
+      if (choice.emoji != null) {
+        _emoji = choice.emoji;
+      } else {
+        _emoji = null;
+        _iconCodePoint = choice.codePoint!;
+      }
+    });
   }
 
   @override
@@ -59,6 +82,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
         description: _descCtrl.text.trim(),
         colorValue: _colorValue,
         iconCodePoint: _iconCodePoint,
+        emoji: _emoji,
       );
     } else {
       final existing = provider.byId(widget.habitId!);
@@ -68,6 +92,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
           description: _descCtrl.text.trim(),
           colorValue: _colorValue,
           iconCodePoint: _iconCodePoint,
+          emoji: _emoji,
         ));
       }
     }
@@ -127,13 +152,12 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Label('Icon'),
-            const SizedBox(height: 10),
-            IconPicker(
-              selectedCodePoint: _iconCodePoint,
-              onSelect: (cp) => setState(() => _iconCodePoint = cp),
+            IconCircleButton(
+              emoji: _emoji,
+              codePoint: _iconCodePoint,
+              onTap: _pickIcon,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             _Label('Name'),
             const SizedBox(height: 8),
             TextField(

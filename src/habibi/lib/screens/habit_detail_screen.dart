@@ -5,6 +5,7 @@ import '../providers/habit_provider.dart';
 import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import '../widgets/dot_grid.dart';
+import '../widgets/glyph.dart';
 import '../widgets/month_calendar.dart';
 import 'edit_habit_screen.dart';
 
@@ -69,9 +70,9 @@ class HabitDetailScreen extends StatelessWidget {
                         color: cs.surfaceContainerHigh,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        IconData(habit.iconCodePoint,
-                            fontFamily: 'MaterialIcons'),
+                      child: Glyph(
+                        emoji: habit.emoji,
+                        codePoint: habit.iconCodePoint,
                         size: 26,
                       ),
                     ),

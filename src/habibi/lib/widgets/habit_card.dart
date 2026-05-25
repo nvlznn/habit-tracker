@@ -7,6 +7,7 @@ import '../screens/habit_detail_screen.dart';
 import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import 'dot_grid.dart';
+import 'glyph.dart';
 
 class HabitCard extends StatelessWidget {
   const HabitCard({
@@ -55,8 +56,9 @@ class HabitCard extends StatelessWidget {
                   color: cs.surfaceContainerHigh,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  IconData(habit.iconCodePoint, fontFamily: 'MaterialIcons'),
+                child: Glyph(
+                  emoji: habit.emoji,
+                  codePoint: habit.iconCodePoint,
                   size: 22,
                 ),
               ),

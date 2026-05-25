@@ -5,6 +5,7 @@ import '../models/challenge.dart';
 import '../providers/auth_provider.dart';
 import '../providers/challenge_provider.dart';
 import '../utils/date_key.dart';
+import '../widgets/glyph.dart';
 
 /// Read-only history of challenges that ended, or that the current user was
 /// dropped from. Records are kept forever and cannot be revived.
@@ -96,8 +97,9 @@ class _GraveTile extends StatelessWidget {
                 color: cs.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                IconData(challenge.iconCodePoint, fontFamily: 'MaterialIcons'),
+              child: Glyph(
+                emoji: challenge.emoji,
+                codePoint: challenge.iconCodePoint,
                 size: 22,
                 color: color,
               ),
