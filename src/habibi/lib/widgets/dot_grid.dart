@@ -7,14 +7,23 @@ class DotGrid extends StatelessWidget {
     super.key,
     required this.dateKeys,
     required this.color,
+    this.ringKeys,
     this.weeks = 24,
     this.dotSize = 8,
     this.spacing = 3,
     this.asOf,
   });
 
+  /// Days drawn as a *filled* circle. For challenges these are the days everyone
+  /// checked in (the set intersection).
   final Set<String> dateKeys;
   final Color color;
+
+  /// Days drawn as a *hollow* ring when they aren't already in [dateKeys]. For
+  /// challenges these are the days I personally checked in but not everyone did.
+  /// Null (the default) means no rings — the plain habit grid.
+  final Set<String>? ringKeys;
+
   final int weeks;
   final double dotSize;
   final double spacing;
@@ -46,14 +55,19 @@ class DotGrid extends StatelessWidget {
               final cellDate =
                   gridStart.add(Duration(days: col * 7 + row));
               final isFuture = cellDate.isAfter(todayDate);
-              final isDone = !isFuture && dateKeys.contains(dateKey(cellDate));
+              final key = dateKey(cellDate);
+              final isDone = !isFuture && dateKeys.contains(key);
+              // A day I checked in but not everyone -> hollow ring.
+              final isMine =
+                  !isFuture && !isDone && (ringKeys?.contains(key) ?? false);
               return Padding(
                 padding: EdgeInsets.only(left: col == 0 ? 0 : spacing),
                 child: _Dot(
                   size: dotSize,
                   color: isFuture
                       ? Colors.transparent
-                      : (isDone ? color : dimColor),
+                      : (isDone ? color : (isMine ? Colors.transparent : dimColor)),
+                  borderColor: isMine ? color : null,
                 ),
               );
             }),
@@ -65,9 +79,12 @@ class DotGrid extends StatelessWidget {
 }
 
 class _Dot extends StatelessWidget {
-  const _Dot({required this.size, required this.color});
+  const _Dot({required this.size, required this.color, this.borderColor});
   final double size;
   final Color color;
+
+  /// When set, the dot is drawn as a hollow ring in this color.
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +94,12 @@ class _Dot extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
+        border: borderColor == null
+            ? null
+            : Border.all(
+                color: borderColor!,
+                width: (size * 0.18).clamp(1.2, 3.0),
+              ),
       ),
     );
   }

@@ -10,9 +10,10 @@ import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import 'dot_grid.dart';
 
-/// A challenge in the list: icon, name, the shared streak, and a dot grid of the
-/// days *everyone* checked in (the set intersection). Shows a warning naming the
-/// member(s) about to lapse the 7-day rule.
+/// A challenge in the list, laid out like a habit card: icon, name + shared
+/// streak, a check button (top-right) to mark *my* day, and a dot grid below.
+/// In the grid a day I checked in shows as a hollow ring; a day *everyone*
+/// checked in (the set intersection) shows as a filled circle.
 class ChallengeCard extends StatelessWidget {
   const ChallengeCard({super.key, required this.challenge});
 
@@ -24,6 +25,11 @@ class ChallengeCard extends StatelessWidget {
     final color = Color(challenge.colorValue);
     final mutual = mutualDays(challenge.activeCheckins);
     final streak = mutualStreak(challenge.activeCheckins);
+
+    final myId = context.read<AuthProvider>().currentUser?.id;
+    final myDays = myId == null ? <String>{} : challenge.checkinsFor(myId);
+    final todayKey = simulatedTodayKey();
+    final doneToday = myDays.contains(todayKey);
 
     // Each member has their own 7-day timer (see challenge_lifecycle): they are
     // kicked on their 8th silent day. Warn within 3 days, and name the member(s)
@@ -51,7 +57,6 @@ class ChallengeCard extends StatelessWidget {
 
     String warningText = '';
     if (showWarning) {
-      final myId = context.read<AuthProvider>().currentUser?.id;
       final namesById = {
         for (final f in context.read<ChallengeProvider>().friends)
           f.id: f.displayName,
@@ -99,24 +104,44 @@ class ChallengeCard extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        challenge.name,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              challenge.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _StreakBadge(streak: streak, color: color),
+                        ],
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         '${actives.length} people',
                         style: TextStyle(
-                            fontSize: 12,
-                            color: cs.onSurface.withValues(alpha: 0.38)),
+                            fontSize: 13,
+                            color: cs.onSurface.withValues(alpha: 0.55)),
                       ),
                     ],
                   ),
                 ),
-                _StreakBadge(streak: streak, color: color),
+                const SizedBox(width: 12),
+                if (myId != null)
+                  _CheckSquare(
+                    color: color,
+                    done: doneToday,
+                    onTap: () => context
+                        .read<ChallengeProvider>()
+                        .toggleDay(challenge.id, myId, todayKey),
+                  ),
               ],
             ),
             if (showWarning) ...[
@@ -126,6 +151,7 @@ class ChallengeCard extends StatelessWidget {
             const SizedBox(height: 16),
             DotGrid(
               dateKeys: mutual,
+              ringKeys: myDays,
               color: color,
               asOf: fromEpochDay(simulatedTodayEpochDay()),
             ),
@@ -198,6 +224,8 @@ class _WarningBanner extends StatelessWidget {
   }
 }
 
+/// Small flame + shared-streak count shown right after the challenge name —
+/// matches the habit card's streak badge.
 class _StreakBadge extends StatelessWidget {
   const _StreakBadge({required this.streak, required this.color});
 
@@ -207,23 +235,56 @@ class _StreakBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tint = streak > 0 ? color : cs.onSurface.withValues(alpha: 0.35);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.local_fire_department,
-            size: 20,
-            color: streak > 0 ? color : cs.onSurface.withValues(alpha: 0.24)),
-        const SizedBox(width: 2),
+        Icon(Icons.local_fire_department, size: 16, color: tint),
+        const SizedBox(width: 3),
         Text(
           '$streak',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: streak > 0
-                ? cs.onSurface
-                : cs.onSurface.withValues(alpha: 0.38),
+            color: tint,
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The tap-to-check button (top-right), identical to the habit card's: toggles
+/// *my* check-in for today. White check when done, dimmed when not.
+class _CheckSquare extends StatelessWidget {
+  const _CheckSquare({
+    required this.color,
+    required this.done,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool done;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: done ? color : color.withValues(alpha: 0.25),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.check,
+          size: 22,
+          color: done ? Colors.white : color.withValues(alpha: 0.45),
+        ),
+      ),
     );
   }
 }
