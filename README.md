@@ -254,31 +254,6 @@ Under the hood:
   `src/habibi/bench/`. The friends feature's shared streak adds a second
   algorithmic operation: a set intersection over participants' done-day sets.
 
-### Usage
-
-The app is **already deployed** — you don't need to build anything to try it:
-
-👉 **https://nvlznn.github.io/habit-tracker/**
-
-Open that link in any modern browser. It works on a phone too — on iPhone, open
-it in Safari, and (optionally) tap **Share → Add to Home Screen** to launch it
-like a native app.
-
-To run it locally instead, from `src/habibi/`:
-
-```sh
-flutter pub get
-flutter run -d chrome
-```
-
-The site redeploys automatically: every push to `main` triggers the GitHub
-Actions workflow in `.github/workflows/deploy.yml`, which builds the Flutter web
-app and publishes it to GitHub Pages.
-
-> Note: this deployed link is the **demo**. Sign-in and purchases are mocked and
-> all data stays on the device/browser it was entered on — clearing site data
-> resets it.
-
 ### Roadmap to production
 
 The current build is a demo. The intent is to ship Nokapp on the **App Store**
@@ -304,7 +279,15 @@ are swaps at the edges of the app, not rewrites of it.
 
 ## How to run
 
-From `src/habibi/`:
+The app is **already deployed** — you don't need to build anything to try it:
+
+👉 **https://nvlznn.github.io/habit-tracker/**
+
+Open that link in any modern browser. It works on a phone too — on iPhone, open
+it in Safari, and (optionally) tap **Share → Add to Home Screen** to launch it
+like a native app.
+
+To run it locally instead, from `src/habibi/`:
 
 ```sh
 flutter pub get
