@@ -4,6 +4,13 @@ A habit tracker you keep *with your friends*, built with Flutter. Track your
 own habits, then start a shared challenge where the streak only moves forward
 on the days everyone checks in.
 
+> ⚠️ **This is a demo build.** It runs fully on-device with a **mock sign-in**
+> and **mock purchases**, so anyone can try it instantly with no account and no
+> payment. The plan is to publish Nokapp to the **App Store** as a paid product;
+> the demo's mock layers are deliberately written so that **Google Login** and
+> **App Store In-App Purchase** can be dropped into the pipeline without
+> rewriting the app. See [Roadmap to production](#roadmap-to-production).
+
 ---
 
 ## Proposal Report
@@ -227,14 +234,21 @@ Under the hood:
 - **Local-first storage** with Hive and hand-written `TypeAdapter`s (no code
   generation).
 - **Swappable data layer** — auth, social, and billing each sit behind a
-  repository interface (`LocalAuthRepository`, `LocalSocialRepository`,
-  `LocalBillingRepository`). Moving to a real backend (e.g. Firebase) means
-  swapping these few lines in `main.dart`; nothing else in the app changes.
+  repository interface, backed in this demo by on-device mocks
+  (`LocalAuthRepository`, `LocalSocialRepository`, `LocalBillingRepository`).
+  Going to production means swapping these few lines in `main.dart` —
+  `AuthRepository` → **Google Login**, `BillingRepository` → **App Store
+  In-App Purchase**, `SocialRepository` → a real backend (e.g. Firebase) —
+  with nothing else in the app changing.
+- **Sign-in (demo)** — the current build uses a mock local profile so it opens
+  straight into the app; the real release will sign users in with **Google
+  Login** behind the same `AuthRepository`.
 - **State management** with Provider (`ChangeNotifier`), so toggling a check-in
   or the theme repaints exactly the screens that depend on it.
-- **Pro tier (mock)** — a freemium gate (free users keep their 3 oldest habits
-  active; extras are locked until they upgrade) with a paywall and mock billing.
-  The interfaces are ready to be backed by real App Store / Play billing later.
+- **Pro tier (demo)** — a freemium gate (free users keep their 3 oldest habits
+  active; extras are locked until they upgrade) with a paywall and **mock
+  billing**. No real money changes hands in the demo; for the App Store release
+  the same `BillingRepository` will be backed by **App Store In-App Purchase**.
 - **DSAP benchmark** — the date-key lookup that backs every dot and streak is
   implemented three ways (HashSet, SortedArray, Bitmap) and benchmarked in
   `src/habibi/bench/`. The friends feature's shared streak adds a second
@@ -260,6 +274,31 @@ flutter run -d chrome
 The site redeploys automatically: every push to `main` triggers the GitHub
 Actions workflow in `.github/workflows/deploy.yml`, which builds the Flutter web
 app and publishes it to GitHub Pages.
+
+> Note: this deployed link is the **demo**. Sign-in and purchases are mocked and
+> all data stays on the device/browser it was entered on — clearing site data
+> resets it.
+
+### Roadmap to production
+
+The current build is a demo. The intent is to ship Nokapp on the **App Store**
+as a paid product, so the next steps add the real account and payment pieces to
+the pipeline:
+
+- **Google Login** — replace the mock `LocalAuthRepository` with real Google
+  Sign-In (Firebase Auth / `google_sign_in`) so each user has a real identity.
+- **App Store In-App Purchase** — replace the mock `LocalBillingRepository` with
+  StoreKit purchases via `in_app_purchase`, so the Pro tier is a real, charged
+  upgrade through Apple. (Google Play billing on Android can follow the same
+  interface.)
+- **Real backend** — move friends and challenges off-device (e.g. Firebase /
+  Firestore) so a challenge actually syncs between two phones, behind the
+  existing `SocialRepository`.
+- **iOS release build** — produce a signed iOS build and ship to TestFlight,
+  then the App Store. (Needs Mac access — see the Prototype Report.)
+
+Because auth, billing, and social each sit behind a repository interface, these
+are swaps at the edges of the app, not rewrites of it.
 
 ---
 
