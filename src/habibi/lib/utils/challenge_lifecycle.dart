@@ -18,9 +18,15 @@ int lastCheckInDay(Challenge c, String participantId) {
   return best;
 }
 
-/// Days since [participantId] last checked in, relative to [today].
+/// Days since [participantId] last checked in, relative to [today]. Each
+/// participant has their own 7-day timer: this is what it is measured against.
 int staleDays(Challenge c, String participantId, int today) =>
     today - lastCheckInDay(c, participantId);
+
+/// Days until [participantId] is kicked: they lapse on their 8th silent day, so
+/// this is `(threshold + 1) - staleDays`. <= 0 means they are already overdue.
+int daysUntilKick(Challenge c, String participantId, int today) =>
+    (kOverdueThreshold + 1) - staleDays(c, participantId, today);
 
 /// Applies the lifecycle rules to [c] in place, given [today] (epoch day):
 /// while an active participant is overdue, drop them if more than two remain,

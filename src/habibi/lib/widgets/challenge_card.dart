@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/challenge.dart';
+import '../providers/auth_provider.dart';
+import '../providers/challenge_provider.dart';
 import '../screens/challenge_detail_screen.dart';
 import '../utils/challenge_lifecycle.dart';
 import '../utils/date_key.dart';
@@ -8,8 +11,8 @@ import '../utils/streak.dart';
 import 'dot_grid.dart';
 
 /// A challenge in the list: icon, name, the shared streak, and a dot grid of the
-/// days *everyone* checked in (the set intersection). Shows a warning when a
-/// member is close to lapsing the 7-day rule.
+/// days *everyone* checked in (the set intersection). Shows a warning naming the
+/// member(s) about to lapse the 7-day rule.
 class ChallengeCard extends StatelessWidget {
   const ChallengeCard({super.key, required this.challenge});
 
@@ -22,19 +25,42 @@ class ChallengeCard extends StatelessWidget {
     final mutual = mutualDays(challenge.activeCheckins);
     final streak = mutualStreak(challenge.activeCheckins);
 
-    // Warning based on the most overdue active participant.
+    // Each member has their own 7-day timer (see challenge_lifecycle): they are
+    // kicked on their 8th silent day. Warn within 3 days, and name the member(s)
+    // who will lapse soonest.
     final today = simulatedTodayEpochDay();
     final actives = challenge.activeParticipantIds;
-    var maxStale = 0;
+    int? soonest;
+    final atRisk = <String>[];
     for (final id in actives) {
-      final s = staleDays(challenge, id, today);
-      if (s > maxStale) maxStale = s;
+      final left = daysUntilKick(challenge, id, today);
+      if (left < 1 || left > 3) continue;
+      if (soonest == null || left < soonest) {
+        soonest = left;
+        atRisk
+          ..clear()
+          ..add(id);
+      } else if (left == soonest) {
+        atRisk.add(id);
+      }
     }
-    final daysLeft = (kOverdueThreshold + 1) - maxStale;
-    final showWarning = challenge.status == ChallengeStatus.active &&
-        daysLeft >= 1 &&
-        daysLeft <= 3;
+    final showWarning =
+        challenge.status == ChallengeStatus.active && atRisk.isNotEmpty;
+    // Kicking a member when only two remain ends the whole challenge instead.
     final endsNext = actives.length <= 2;
+
+    String warningText = '';
+    if (showWarning) {
+      final myId = context.read<AuthProvider>().currentUser?.id;
+      final namesById = {
+        for (final f in context.read<ChallengeProvider>().friends)
+          f.id: f.displayName,
+      };
+      final labels = atRisk
+          .map((id) => id == myId ? 'You' : (namesById[id] ?? 'A friend'))
+          .toList();
+      warningText = _warningText(labels, soonest!, endsNext);
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -95,7 +121,7 @@ class ChallengeCard extends StatelessWidget {
             ),
             if (showWarning) ...[
               const SizedBox(height: 12),
-              _WarningBanner(daysLeft: daysLeft, endsChallenge: endsNext),
+              _WarningBanner(text: warningText),
             ],
             const SizedBox(height: 16),
             DotGrid(
@@ -110,18 +136,41 @@ class ChallengeCard extends StatelessWidget {
   }
 }
 
-class _WarningBanner extends StatelessWidget {
-  const _WarningBanner({required this.daysLeft, required this.endsChallenge});
+/// Joins names for the warning: "You", "Sam", "Sam and Lee",
+/// "Sam, Lee and Max".
+String _joinNames(List<String> names) {
+  if (names.length == 1) return names.first;
+  if (names.length == 2) return '${names[0]} and ${names[1]}';
+  return '${names.sublist(0, names.length - 1).join(', ')} and ${names.last}';
+}
 
-  final int daysLeft;
-  final bool endsChallenge;
+/// Warning sentence naming who is about to lapse and in how many days. When only
+/// two remain, a kick ends the challenge, so it is phrased that way instead.
+String _warningText(List<String> labels, int daysLeft, bool endsNext) {
+  final dayWord = daysLeft == 1 ? 'day' : 'days';
+  final isPlural = labels.length > 1 || labels.first == 'You';
+
+  if (endsNext) {
+    // "you" reads better mid-sentence than "You".
+    final subject = labels.length == 1 && labels.first == 'You'
+        ? 'you'
+        : _joinNames(labels);
+    final verb = isPlural ? 'check in' : 'checks in';
+    return 'Challenge ends in $daysLeft $dayWord unless $subject $verb';
+  }
+
+  final subject = _joinNames(labels);
+  final verb = isPlural ? 'are' : 'is';
+  return '$subject $verb going to be kicked out in $daysLeft $dayWord';
+}
+
+class _WarningBanner extends StatelessWidget {
+  const _WarningBanner({required this.text});
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    final d = daysLeft == 1 ? '1 day' : '$daysLeft days';
-    final msg = endsChallenge
-        ? 'Ends in $d unless someone checks in'
-        : 'A member is dropped in $d';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -136,7 +185,7 @@ class _WarningBanner extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              msg,
+              text,
               style: const TextStyle(
                   fontSize: 12.5,
                   color: Colors.orange,

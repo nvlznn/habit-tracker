@@ -205,8 +205,9 @@ class _DemoClockSectionState extends State<_DemoClockSection> {
         const SizedBox(height: 6),
         Text(
           'Moves "today" forward for habit check-ins, challenge check-ins, and '
-          'the 7-day rule, so you can watch streaks build and members get '
-          'dropped without waiting a week.',
+          'the 7-day rule. To demo a kick, keep the members you want to survive '
+          'checked in within the last 7 days, leave one member idle, then '
+          'advance past their 7th silent day — only that member is dropped.',
           style:
               TextStyle(fontSize: 12, color: cs.onSurface.withValues(alpha: 0.45)),
         ),
