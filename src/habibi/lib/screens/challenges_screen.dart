@@ -21,6 +21,7 @@ class ChallengesScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            iconSize: 30,
             icon: const Icon(Icons.history),
             tooltip: 'Graveyard (past challenges)',
             onPressed: () => Navigator.of(context).push(
@@ -28,6 +29,7 @@ class ChallengesScreen extends StatelessWidget {
             ),
           ),
           IconButton(
+            iconSize: 30,
             icon: const Icon(Icons.add),
             onPressed: () => _startCreate(context),
           ),

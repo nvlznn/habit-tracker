@@ -119,8 +119,8 @@ class _SignedInView extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => _addFriend(context),
-              icon: const Icon(Icons.person_add_alt_1, size: 18),
-              label: const Text('Add'),
+              icon: const Icon(Icons.person_add_alt_1, size: 22),
+              label: const Text('Add', style: TextStyle(fontSize: 15)),
             ),
           ],
         ),

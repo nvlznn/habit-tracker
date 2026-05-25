@@ -21,6 +21,7 @@ class HomeScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         leading: IconButton(
+          iconSize: 30,
           icon: const Icon(Icons.settings_outlined),
           onPressed: () {
             Navigator.of(context).push(
@@ -30,6 +31,7 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            iconSize: 30,
             icon: const Icon(Icons.add),
             onPressed: () => _onAdd(context),
           ),
