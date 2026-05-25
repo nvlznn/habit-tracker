@@ -1,6 +1,8 @@
-# Habibi - Habit Tracker
+# Nokapp Habit Tracker
 
-A minimal habit tracker for iOS, built with Flutter.
+A habit tracker you keep *with your friends*, built with Flutter. Track your
+own habits, then start a shared challenge where the streak only moves forward
+on the days everyone checks in.
 
 ---
 
@@ -8,56 +10,89 @@ A minimal habit tracker for iOS, built with Flutter.
 
 ### Motivation & Goals
 
-Most habit-tracking apps fall into one of two camps: heavy "gamified"
-products that pile on streaks, badges, and social features, or polished
-but locked-down apps that cap how many habits you can track unless you
-pay. I wanted a habit tracker that sits in the middle: a single,
-quiet screen that just shows what I've done and lets me tap to record
-today — and that I fully own and can extend.
+Habits are hard to keep alone. The thing that actually keeps me going isn't a
+badge or a bigger number — it's knowing a friend is doing the same thing and
+would notice if I quietly dropped off. Yet most habit apps are built for one
+person staring at their own streak. I wanted one built around doing it
+**together**: I add a friend, we share a habit, and we grow a *shared streak
+that only advances on the days we both check in*. If either of us skips, the
+shared streak stalls — so there's a real, mutual reason to show up.
 
-The DSAP angle: every interaction in this app boils down to the same
-read — *"is habit H recorded on day D?"*. That single query backs every
-filled dot in the home grid, every cell in the month calendar, and
-every streak calculation. It's a perfect target for the rubric's
-**"compare different data structures / algorithms on a real feature
-flow"** requirement, because the same `contains(day)` operation can be
-implemented at least three different ways with very different tradeoffs.
-The benchmark module (`src/habibi/bench/`) implements all three behind
-a shared interface and measures them on identical workloads.
+The goals:
+
+- A quiet personal tracker — add habits, tap to record today, see your history.
+- **Friend challenges** — share a habit with one or more friends and build a
+  shared streak between you.
+- An *honest* shared streak — it counts only the days **every** participant did
+  the habit, not just your own.
+- Local-first (no account needed to try it), with the data layer written so it
+  can move to a real backend later without touching the rest of the app.
+
+The DSAP angle: nearly every interaction boils down to the same read —
+*"is habit H recorded on day D?"*. That single query backs every filled dot in
+the home grid, every cell in the month calendar, and every streak calculation.
+It's a perfect target for the rubric's **"compare different data structures /
+algorithms on a real feature flow"** requirement, because the same
+`contains(day)` operation can be implemented at least three different ways with
+very different tradeoffs. The benchmark module (`src/habibi/bench/`) implements
+all three behind a shared interface and measures them on identical workloads.
+The friends feature then adds a *second*, naturally algorithmic operation: the
+shared streak is a **set intersection** across each participant's set of
+done-days — another place where the data-structure choice directly drives a
+real feature.
 
 ### Competitive Analysis
 
-| App                | Platform        | Price                | Strengths                              | How Habibi differs                          |
-|--------------------|-----------------|----------------------|----------------------------------------|---------------------------------------------|
-| Habitica           | Web/iOS/Android | Free + subscription  | Gamification, social community         | Quiet & focused, open source                |
-| Streaks            | iOS             | NT$160 one-time      | Polished design                        | No 12-habit cap, free                       |
-| HabitKit           | iOS/Android     | Free + PRO tier      | Dot-grid visualisation, minimal UI     | Open source                                 |
-| Loop Habit Tracker | Android         | Free (open source)   | Statistics & analytics, open source    | iOS-first                                   |
+The gap I kept hitting is that "social" in these apps means a public feed, a
+global leaderboard, or a screenshot you can post. None of them let me say
+*"you and me, this habit, together"* and reward us only when we both follow
+through. Nokapp's defining feature is exactly that.
 
-Habibi takes design inspiration from HabitKit (minimal dark UI, dot-grid
-history) but is fully open source and exposes its data-structure choices
-as a teachable benchmark rather than hiding them.
+| App                | Platform        | Social model                       | Where Nokapp differs                                                     |
+|--------------------|-----------------|------------------------------------|--------------------------------------------------------------------------|
+| Habitica           | Web/iOS/Android | Public parties/guilds, gamified    | A *shared streak* with a chosen friend that only advances when both check in — not a public leaderboard |
+| Streaks            | iOS             | Solo only                          | Built around doing a habit *with* someone; mutual accountability, not a private number |
+| HabitKit           | iOS/Android     | Solo (shareable dot-grid images)   | Friends are first-class — real shared challenges, not just an exportable grid |
+| Loop Habit Tracker | Android         | Solo, open source                  | Adds friend challenges and a shared-streak rule on top of solo tracking  |
+
+Nokapp takes its minimal dark dot-grid look from HabitKit, but its reason to
+exist is the social mechanic the others don't have: a **shared streak across a
+small group (2–10 people) that advances only on the days every active
+participant checked in**, with a 7-day rule that drops anyone who goes quiet
+and ends the challenge when too few remain.
 
 ### Planned Features
 
-- Add / edit / delete habits (name, description, color, icon)
-- Daily check-in by tapping the colored square in the top-right of each card
-- Dot grid showing recent history (one column = one week)
-- Habit detail screen with longer history, streak stats, and a monthly
-  calendar where past dates can be tapped to back-fill or remove a record
-- Local persistence with Hive (no cloud, no account)
-- A standalone benchmark program comparing three data-structure
-  implementations of the date-key lookup operation
+- **Personal habits** — add / edit / delete (name, description, color, icon);
+  tap the colored square on a card to check in for today; dot-grid history (one
+  column = one week); a detail screen with a monthly calendar where past dates
+  can be tapped to back-fill or remove a record, plus streak stats.
+- **Friend challenges** — add friends by name, share a habit with one or more
+  of them, and track a **shared streak** that counts only days everyone checked
+  in.
+- **Challenge lifecycle** — each participant must check in within 7 days;
+  whoever lapses is dropped; the challenge ends when too few remain. Ended
+  challenges (and ones you were dropped from) are kept in a *graveyard* so you
+  can see how long you — and the challenge — lasted.
+- **Local persistence with Hive** (no cloud, no account), behind swappable
+  repositories so a real backend (e.g. Firebase) can be dropped in later.
+- A standalone **benchmark** comparing three data-structure implementations of
+  the date-key lookup operation.
 
 ### Technology Stack
 
 - **Language:** Dart 3.11
-- **Framework:** Flutter 3.41 (target platform: iOS; prototype verified
-  on Chrome / Windows because no Mac is currently on hand)
-- **Local storage:** Hive 2.2 with a hand-written `TypeAdapter`
-  (no code generation)
+- **Framework:** Flutter 3.41 (target platform: iOS; verified on Chrome /
+  Windows and deployed as a Flutter web build because no Mac is currently on
+  hand)
+- **Local storage:** Hive 2.2 with hand-written `TypeAdapter`s (no code
+  generation)
 - **State management:** Provider (`ChangeNotifier`)
-- **Other:** `intl` for date formatting, `uuid` for habit IDs
+- **Architecture:** swappable repository interfaces (auth / social / billing)
+  so the local mock can be replaced with a real backend without touching the UI
+- **Deployment:** Flutter web → GitHub Pages, built and published automatically
+  by GitHub Actions
+- **Other:** `intl` for date formatting, `uuid` for ids
 - **Version control:** Git / GitHub
 
 ### Prototype Verifiable Content
@@ -101,7 +136,7 @@ as a teachable benchmark rather than hiding them.
      HashSet — and is the fastest per op at every scale beyond JIT
      warmup.
 
-   Conclusion for Habibi's actual data scale (≤ a few hundred check-ins
+   Conclusion for Nokapp's actual data scale (≤ a few hundred check-ins
    per habit): all three are fast enough, but the comparison shows
    *why* the choice would matter at scale, and the bitmap would be the
    right pick if a habit ever held tens of thousands of records.
@@ -167,13 +202,76 @@ as a teachable benchmark rather than hiding them.
 
 ---
 
+## Final Report
+
+### Project Description
+
+Nokapp Habit Tracker is a Flutter habit tracker built around keeping habits
+*with friends*. It opens into three tabs:
+
+1. **Habits** — your personal habits. Add a habit (name, description, color,
+   icon), tap the colored square to check in for today, and see a dot-grid of
+   recent history. Each habit shows its current streak inline; tapping a habit
+   opens a detail screen with a monthly calendar (tap any past day to back-fill
+   or remove a record) and longer history.
+2. **Challenges** — habits you share with friends. A challenge has 2–10
+   participants (you + friends) and tracks a **shared streak**: a day only
+   counts when *every active participant* checked in. That shared streak is
+   computed as the **set intersection** of each participant's done-days. Each
+   participant must check in within 7 days; whoever goes quiet is dropped, and
+   when too few remain the challenge ends. Ended challenges — and ones you were
+   dropped from — live in a **graveyard** that records how many days you
+   persisted and how long the challenge lasted.
+3. **Friends** — add friends by name so you can start challenges with them.
+
+Under the hood:
+
+- **Local-first storage** with Hive and hand-written `TypeAdapter`s (no code
+  generation).
+- **Swappable data layer** — auth, social, and billing each sit behind a
+  repository interface (`LocalAuthRepository`, `LocalSocialRepository`,
+  `LocalBillingRepository`). Moving to a real backend (e.g. Firebase) means
+  swapping these few lines in `main.dart`; nothing else in the app changes.
+- **State management** with Provider (`ChangeNotifier`), so toggling a check-in
+  or the theme repaints exactly the screens that depend on it.
+- **Pro tier (mock)** — a freemium gate (free users keep their 3 oldest habits
+  active; extras are locked until they upgrade) with a paywall and mock billing.
+  The interfaces are ready to be backed by real App Store / Play billing later.
+- **DSAP benchmark** — the date-key lookup that backs every dot and streak is
+  implemented three ways (HashSet, SortedArray, Bitmap) and benchmarked in
+  `src/habibi/bench/`. The friends feature's shared streak adds a second
+  algorithmic operation: a set intersection over participants' done-day sets.
+
+### Usage
+
+The app is **already deployed** — you don't need to build anything to try it:
+
+👉 **https://nvlznn.github.io/habit-tracker/**
+
+Open that link in any modern browser. It works on a phone too — on iPhone, open
+it in Safari, and (optionally) tap **Share → Add to Home Screen** to launch it
+like a native app.
+
+To run it locally instead, from `src/habibi/`:
+
+```sh
+flutter pub get
+flutter run -d chrome
+```
+
+The site redeploys automatically: every push to `main` triggers the GitHub
+Actions workflow in `.github/workflows/deploy.yml`, which builds the Flutter web
+app and publishes it to GitHub Pages.
+
+---
+
 ## How to run
 
 From `src/habibi/`:
 
 ```sh
 flutter pub get
-flutter run -d chrome           # prototype demo
+flutter run -d chrome           # run the app
 flutter test                    # widget + algorithm tests
 flutter analyze                 # static analysis
 dart run bench/bench_main.dart  # DSAP benchmark
@@ -184,23 +282,50 @@ dart run bench/bench_main.dart  # DSAP benchmark
 ```
 habit-tracker/
 ├── README.md                              # this file
+├── .github/workflows/deploy.yml           # builds web + publishes to GitHub Pages
 └── src/habibi/
     ├── pubspec.yaml
+    ├── web/                               # web shell, icons, manifest
     ├── lib/
-    │   ├── main.dart
-    │   ├── models/habit.dart              # hand-written HabitAdapter
-    │   ├── providers/habit_provider.dart
-    │   ├── utils/{date_key,palette,streak}.dart
+    │   ├── main.dart                      # wires repositories + providers
+    │   ├── models/
+    │   │   ├── habit.dart                 # hand-written HabitAdapter (typeId 0)
+    │   │   ├── friend.dart
+    │   │   ├── challenge.dart             # ChallengeAdapter (typeId 3)
+    │   │   └── user_profile.dart
+    │   ├── data/                          # swappable repository interfaces
+    │   │   ├── auth_repository.dart
+    │   │   ├── social_repository.dart
+    │   │   └── billing_repository.dart
+    │   ├── providers/                     # ChangeNotifier state
+    │   │   ├── habit_provider.dart
+    │   │   ├── challenge_provider.dart
+    │   │   ├── auth_provider.dart
+    │   │   ├── entitlement_provider.dart
+    │   │   └── theme_provider.dart
+    │   ├── utils/
+    │   │   ├── date_key.dart
+    │   │   ├── streak.dart                # currentStreak + mutualStreak (set intersection)
+    │   │   ├── challenge_lifecycle.dart   # 7-day drop / end rules
+    │   │   └── palette.dart
     │   ├── widgets/
     │   │   ├── habit_card.dart
+    │   │   ├── challenge_card.dart
     │   │   ├── dot_grid.dart
     │   │   ├── month_calendar.dart
     │   │   ├── icon_picker.dart
     │   │   └── color_picker.dart
     │   └── screens/
-    │       ├── home_screen.dart
+    │       ├── root_screen.dart           # 3-tab shell
+    │       ├── home_screen.dart           # Habits tab
     │       ├── habit_detail_screen.dart
     │       ├── edit_habit_screen.dart
+    │       ├── challenges_screen.dart     # Challenges tab
+    │       ├── challenge_detail_screen.dart
+    │       ├── edit_challenge_screen.dart
+    │       ├── graveyard_screen.dart      # ended / dropped challenges
+    │       ├── friends_screen.dart        # Friends tab
+    │       ├── paywall_screen.dart
     │       └── settings_screen.dart
     ├── bench/                             # DSAP module — outside lib/
     │   ├── check_in_index.dart            # shared interface
