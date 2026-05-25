@@ -297,59 +297,36 @@ String _fauxEmail(String name) =>
     '${name.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '.')}@gmail.com';
 
 /// Shared single-field text prompt. Returns the trimmed text, or null if
-/// cancelled / empty. A bottom sheet (not a dialog) so it rises just above the
-/// keyboard instead of being pushed off the top of the screen.
+/// cancelled / empty. A centered dialog; `scrollable: true` keeps it from
+/// overflowing when the keyboard shrinks the available height.
 Future<String?> _promptName(BuildContext context, {required String title}) {
   final controller = TextEditingController();
-  return showModalBottomSheet<String>(
+  return showDialog<String>(
     context: context,
-    isScrollControlled: true, // lets the sheet grow with the keyboard
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (ctx) {
       void submit() {
         final text = controller.text.trim();
         Navigator.pop(ctx, text.isEmpty ? null : text);
       }
-      return Padding(
-        // Bottom padding = keyboard height, so the field sits right above it.
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.viewInsetsOf(ctx).bottom + 20,
+      return AlertDialog(
+        scrollable: true,
+        backgroundColor: Theme.of(ctx).colorScheme.surfaceContainer,
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(hintText: 'Name'),
+          onSubmitted: (_) => submit(),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(hintText: 'Name'),
-              onSubmitted: (_) => submit(),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancel')),
-                const SizedBox(width: 8),
-                TextButton(onPressed: submit, child: const Text('OK')),
-              ],
-            ),
-          ],
-        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(onPressed: submit, child: const Text('OK')),
+        ],
       );
     },
   );
