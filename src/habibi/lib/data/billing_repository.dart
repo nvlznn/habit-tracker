@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-/// The three ways to buy Habibi Pro. Stored by its [name] (e.g. "annual").
+/// The three ways to buy Nokapp Pro. Stored by its [name] (e.g. "annual").
 enum ProPlan { monthly, annual, lifetime }
 
 extension ProPlanInfo on ProPlan {

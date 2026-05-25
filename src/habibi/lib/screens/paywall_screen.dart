@@ -32,7 +32,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     setState(() => _busy = false);
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Welcome to Habibi Pro! (${_selected.label})')),
+        SnackBar(content: Text('Welcome to Nokapp Pro! (${_selected.label})')),
       );
       Navigator.of(context).pop(true);
     }
@@ -51,7 +51,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Habibi Pro'),
+        title: const Text('Nokapp Pro'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(false),

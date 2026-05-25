@@ -26,7 +26,7 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _SectionLabel('Habibi Pro'),
+          _SectionLabel('Nokapp Pro'),
           const _ProSection(),
           const Divider(height: 32),
           _SectionLabel('Appearance'),
@@ -75,7 +75,7 @@ class SettingsScreen extends StatelessWidget {
           const Divider(height: 32),
           const ListTile(
             leading: Icon(Icons.info_outline),
-            title: Text('About habibi'),
+            title: Text('About Nokapp'),
             subtitle: Text(
                 'A minimal habit tracker. School project for the DSAP course.'),
           ),
