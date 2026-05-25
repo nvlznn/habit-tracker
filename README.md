@@ -25,8 +25,6 @@ The goals:
   shared streak between you.
 - An *honest* shared streak — it counts only the days **every** participant did
   the habit, not just your own.
-- Local-first (no account needed to try it), with the data layer written so it
-  can move to a real backend later without touching the rest of the app.
 
 The DSAP angle: nearly every interaction boils down to the same read —
 *"is habit H recorded on day D?"*. That single query backs every filled dot in
