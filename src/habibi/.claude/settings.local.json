@@ -13,7 +13,8 @@
       "Bash(python3 -c \"import PIL; print\\(PIL.__version__\\)\")",
       "Bash(magick --version)",
       "Bash(inkscape --version)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(flutter *)"
     ]
   }
 }

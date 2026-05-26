@@ -23,10 +23,15 @@ class Glyph extends StatelessWidget {
   Widget build(BuildContext context) {
     final e = emoji;
     if (e != null && e.isNotEmpty) {
-      return Text(
-        e,
-        style: TextStyle(fontSize: size * 0.95, height: 1.0),
-        textAlign: TextAlign.center,
+      // The circular icon holders pass tight constraints; without Center the
+      // emoji pins to the top-left and spills out of the circle. A slightly
+      // smaller font keeps the glyph comfortably inside.
+      return Center(
+        child: Text(
+          e,
+          style: TextStyle(fontSize: size * 0.85, height: 1.0),
+          textAlign: TextAlign.center,
+        ),
       );
     }
     return Icon(
