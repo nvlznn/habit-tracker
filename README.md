@@ -1,4 +1,8 @@
-# Nokapp Habits - Track Habits with Friends
+# Nokapp Habits - Build Habits with Friends
+
+The app is **already deployed!**, try it 👉 **https://nvlznn.github.io/habit-tracker/**
+
+
 
 A habit tracker you keep *with your friends*, built with Flutter. Track your
 own habits, then start a shared challenge where the streak only moves forward
