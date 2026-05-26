@@ -1,4 +1,4 @@
-# Nokapp Habit Tracker
+# Nokapp Habits - Track Habits with Friends
 
 A habit tracker you keep *with your friends*, built with Flutter. Track your
 own habits, then start a shared challenge where the streak only moves forward
