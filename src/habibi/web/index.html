@@ -32,16 +32,63 @@
 
   <title>Nokapp - Habit Tracker</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Loading screen shown until Flutter paints its first frame. Colors match
+       the app's light/dark themes (see _buildLightTheme / _buildDarkTheme). -->
+  <style>
+    #splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      background: #F4F4F6;
+      transition: opacity 0.4s ease;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif;
+    }
+    #splash .splash-title {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #6D28D9;
+      animation: splash-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes splash-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    @media (prefers-color-scheme: dark) {
+      #splash { background: #0E0E0E; }
+      #splash .splash-title { color: #B388FF; }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <!-- Centered "Nokapp" loading screen; removed once Flutter is ready. -->
+  <div id="splash">
+    <div class="splash-title">Nokapp</div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    (function () {
+      function removeSplash() {
+        var splash = document.getElementById('splash');
+        if (!splash) return;
+        splash.style.opacity = '0';
+        window.setTimeout(function () {
+          if (splash.parentNode) splash.parentNode.removeChild(splash);
+        }, 400);
+      }
+      // Flutter dispatches this once the first frame paints. Listen on both
+      // targets so it works regardless of where the engine fires it.
+      window.addEventListener('flutter-first-frame', removeSplash);
+      document.addEventListener('flutter-first-frame', removeSplash);
+      // Safety net: never trap the user behind the splash if the event is missed.
+      window.setTimeout(removeSplash, 15000);
+    })();
+  </script>
 </body>
 </html>
