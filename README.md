@@ -2,6 +2,8 @@
 
 The app is **already deployed!**, try it 👉 **https://nvlznn.github.io/habit-tracker/**
 
+(you should open the link with phone, if you are on computer, press F12 then adjust to the phone view)
+
 
 
 A habit tracker you keep *with your friends*, built with Flutter. Track your
