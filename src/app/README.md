@@ -1,4 +1,4 @@
-# habibi
+# Nokapp Habit Tracker
 
 A new Flutter project.
 

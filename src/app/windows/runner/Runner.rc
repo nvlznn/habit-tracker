@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.nvlznn" "\0"
-            VALUE "FileDescription", "habibi" "\0"
+            VALUE "CompanyName", "com.nokapp" "\0"
+            VALUE "FileDescription", "Nokapp Habit Tracker" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "habibi" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.nvlznn. All rights reserved." "\0"
-            VALUE "OriginalFilename", "habibi.exe" "\0"
-            VALUE "ProductName", "habibi" "\0"
+            VALUE "InternalName", "nokapp_habits" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.nokapp. All rights reserved." "\0"
+            VALUE "OriginalFilename", "nokapp_habits.exe" "\0"
+            VALUE "ProductName", "Nokapp Habit Tracker" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,4 +1,4 @@
-name: habibi
+name: nokapp_habits
 description: A minimal habit tracker. School project for the DSAP course.
 publish_to: 'none'
 version: 0.1.0+1

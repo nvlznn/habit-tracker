@@ -8,7 +8,7 @@ A habit tracker that can build habits with friends.
 habit-tracker/
 ├── README.md                              # this file
 ├── .github/workflows/deploy.yml           # builds web + publishes to GitHub Pages
-└── src/habibi/
+└── src/app/
     ├── pubspec.yaml
     ├── web/                               # web shell, icons, manifest
     ├── lib/

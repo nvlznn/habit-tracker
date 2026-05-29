@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:habibi/models/challenge.dart';
-import 'package:habibi/utils/date_key.dart';
-import 'package:habibi/utils/streak.dart';
+import 'package:nokapp_habits/models/challenge.dart';
+import 'package:nokapp_habits/utils/date_key.dart';
+import 'package:nokapp_habits/utils/streak.dart';
 
 /// Reproduces what the challenge detail screen computes for the mutual grid:
 ///   mutual = mutualDays(challenge.activeCheckins)
