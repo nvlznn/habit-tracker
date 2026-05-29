@@ -1,4 +1,4 @@
-package com.nvlznn.habibi
+package com.nokapp.habits
 
 import io.flutter.embedding.android.FlutterActivity
 

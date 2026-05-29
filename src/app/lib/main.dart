@@ -51,12 +51,12 @@ Future<void> main() async {
       ChangeNotifierProvider(
           create: (_) => EntitlementProvider(billingRepository)),
     ],
-    child: const HabibiApp(),
+    child: const NokappHabitsApp(),
   ));
 }
 
-class HabibiApp extends StatelessWidget {
-  const HabibiApp({super.key});
+class NokappHabitsApp extends StatelessWidget {
+  const NokappHabitsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
