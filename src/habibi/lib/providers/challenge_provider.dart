@@ -85,10 +85,15 @@ class ChallengeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Toggles [participantId]'s check-in for [dateKey]. By default this re-runs
+  /// the drop/ended lifecycle rules. Pass [runLifecycle] = false when editing
+  /// past history (demo-only) so backfilling days can't instantly drop someone
+  /// or end the challenge.
   Future<void> toggleDay(
-      String challengeId, String participantId, String dateKey) async {
+      String challengeId, String participantId, String dateKey,
+      {bool runLifecycle = true}) async {
     await _repo.toggleDay(challengeId, participantId, dateKey);
-    _runLifecycle();
+    if (runLifecycle) _runLifecycle();
     notifyListeners();
   }
 

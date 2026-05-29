@@ -8,6 +8,7 @@ import '../utils/date_key.dart';
 import '../utils/streak.dart';
 import '../widgets/dot_grid.dart';
 import '../widgets/glyph.dart';
+import '../widgets/month_calendar.dart';
 
 /// The heart of the feature. Shows the shared streak (the days *everyone*
 /// checked in) plus each participant's own history, and lets you toggle today
@@ -92,6 +93,7 @@ class ChallengeDetailScreen extends StatelessWidget {
                 // graveyard.
                 for (final id in challenge.activeParticipantIds)
                   _ParticipantRow(
+                    key: ValueKey(id),
                     challengeId: challenge.id,
                     participantId: id,
                     label: labelFor(id),
@@ -221,11 +223,15 @@ class _SharedStreakCard extends StatelessWidget {
   }
 }
 
-/// One participant's today-toggle + their own history grid. Tapping the square
-/// toggles that person's check-in for today (for the friend this "simulates"
-/// their device, so the demo can be driven from one screen).
-class _ParticipantRow extends StatelessWidget {
+/// One participant's today-toggle + their own history. Tapping the today square
+/// toggles that person's check-in for today (for a friend this "simulates" their
+/// device, so the demo can be driven from one screen). The "Edit history" row
+/// expands a month calendar for fixing any past day; those edits skip the
+/// drop/ended lifecycle (demo-only) so backfilling history can't instantly kill
+/// the challenge.
+class _ParticipantRow extends StatefulWidget {
   const _ParticipantRow({
+    super.key,
     required this.challengeId,
     required this.participantId,
     required this.label,
@@ -242,10 +248,17 @@ class _ParticipantRow extends StatelessWidget {
   final Set<String> dateKeys;
 
   @override
+  State<_ParticipantRow> createState() => _ParticipantRowState();
+}
+
+class _ParticipantRowState extends State<_ParticipantRow> {
+  bool _editing = false;
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final today = simulatedTodayKey();
-    final doneToday = dateKeys.contains(today);
+    final doneToday = widget.dateKeys.contains(today);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -263,12 +276,14 @@ class _ParticipantRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      label,
+                      widget.label,
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      isMe ? 'tap to check in today' : 'tap to simulate today',
+                      widget.isMe
+                          ? 'tap to check in today'
+                          : 'tap to simulate today',
                       style: TextStyle(
                           fontSize: 11,
                           color: cs.onSurface.withValues(alpha: 0.38)),
@@ -277,23 +292,67 @@ class _ParticipantRow extends StatelessWidget {
                 ),
               ),
               _CheckSquare(
-                color: color,
+                color: widget.color,
                 done: doneToday,
-                onTap: () => context
-                    .read<ChallengeProvider>()
-                    .toggleDay(challengeId, participantId, today),
+                onTap: () => context.read<ChallengeProvider>().toggleDay(
+                    widget.challengeId, widget.participantId, today),
               ),
             ],
           ),
           const SizedBox(height: 12),
           _EndAlignedScroll(
             child: DotGrid(
-              dateKeys: dateKeys,
-              color: color,
+              dateKeys: widget.dateKeys,
+              color: widget.color,
               weeks: 26,
               asOf: fromEpochDay(simulatedTodayEpochDay()),
             ),
           ),
+          const SizedBox(height: 4),
+          // Expandable past-history editor. Collapsed by default so a challenge
+          // with many participants stays short.
+          GestureDetector(
+            onTap: () => setState(() => _editing = !_editing),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Icon(Icons.edit_calendar_outlined,
+                      size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Edit history',
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface.withValues(alpha: 0.7)),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    _editing ? Icons.expand_less : Icons.expand_more,
+                    size: 20,
+                    color: cs.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_editing) ...[
+            const SizedBox(height: 8),
+            MonthCalendar(
+              dateKeys: widget.dateKeys,
+              color: widget.color,
+              asOf: fromEpochDay(simulatedTodayEpochDay()),
+              onToggleDate: (date) =>
+                  context.read<ChallengeProvider>().toggleDay(
+                        widget.challengeId,
+                        widget.participantId,
+                        dateKey(date),
+                        runLifecycle: false,
+                      ),
+            ),
+          ],
         ],
       ),
     );
