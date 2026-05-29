@@ -1,9 +1,6 @@
 # Nokapp Habits
 
-A habit tracker you keep *with your friends*, built with Flutter.
-
-Live demo 👉 **https://nvlznn.github.io/habit-tracker/** (open on a phone, or use
-the phone view in your browser's dev tools).
+A habit tracker that can build habits with friends.
 
 ## Repository layout
 
