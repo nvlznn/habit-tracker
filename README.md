@@ -9,7 +9,6 @@ habit-tracker/
 ├── README.md                              # this file
 └── src/app/
     ├── pubspec.yaml
-    ├── web/                               # web shell, icons, manifest
     ├── lib/
     │   ├── main.dart                      # wires repositories + providers
     │   ├── models/
