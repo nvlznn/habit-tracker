@@ -2,6 +2,18 @@
 
 A habit tracker that can build habits with friends.
 
+## Running the app
+
+```bash
+cd src/app
+flutter pub get
+flutter run -t lib/main_dev.dart    # developer build — mock auth + purchases, "DEV" ribbon
+flutter run -t lib/main_prod.dart   # real-users build — what ships to the store
+```
+
+Add `-d chrome` (or any device id) to pick a target. A plain `flutter run` uses
+`lib/main.dart`, which mirrors the developer build.
+
 ## Repository layout
 
 ```
@@ -10,7 +22,11 @@ habit-tracker/
 └── src/app/
     ├── pubspec.yaml
     ├── lib/
-    │   ├── main.dart                      # wires repositories + providers
+    │   ├── main.dart                      # default entry → developer build
+    │   ├── main_dev.dart                  # developer build (mock auth + purchases)
+    │   ├── main_prod.dart                 # real-users build (ships to the store)
+    │   ├── bootstrap.dart                 # shared startup: Hive, providers, themes, dev/prod seam
+    │   ├── app_config.dart                # Flavor enum + AppConfig
     │   ├── models/
     │   │   ├── habit.dart                 # hand-written HabitAdapter (typeId 0)
     │   │   ├── friend.dart

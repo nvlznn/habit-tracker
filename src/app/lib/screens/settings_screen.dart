@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app_config.dart';
 import '../data/billing_repository.dart';
 import '../providers/challenge_provider.dart';
 import '../providers/entitlement_provider.dart';
@@ -13,6 +14,9 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The simulated clock is a developer tool — show it only in the dev build,
+    // never to real users in the prod build.
+    final isDev = context.watch<AppConfig>().isDev;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -27,9 +31,11 @@ class SettingsScreen extends StatelessWidget {
           _SectionLabel('Nokapp Pro'),
           const _ProSection(),
           const Divider(height: 32),
-          _SectionLabel('Developer (demo)'),
-          const _DemoClockSection(),
-          const Divider(height: 32),
+          if (isDev) ...[
+            _SectionLabel('Developer (demo)'),
+            const _DemoClockSection(),
+            const Divider(height: 32),
+          ],
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('About Nokapp'),

@@ -1,0 +1,161 @@
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
+
+import 'app_config.dart';
+import 'data/auth_repository.dart';
+import 'data/billing_repository.dart';
+import 'data/social_repository.dart';
+import 'models/challenge.dart';
+import 'models/friend.dart';
+import 'models/habit.dart';
+import 'models/user_profile.dart';
+import 'providers/auth_provider.dart';
+import 'providers/challenge_provider.dart';
+import 'providers/entitlement_provider.dart';
+import 'providers/habit_provider.dart';
+import 'screens/root_screen.dart';
+
+const String _habitsBoxName = 'habits';
+const String _profileBoxName = 'profile';
+const String _friendsBoxName = 'friends';
+const String _challengesBoxName = 'challenges';
+const String _settingsBoxName = 'settings';
+
+/// The single place all the real startup logic lives. Both `main_dev.dart` and
+/// `main_prod.dart` call this with a different [AppConfig]; nothing else is
+/// duplicated between the two builds.
+Future<void> bootstrap(AppConfig config) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(HabitAdapter());
+  Hive.registerAdapter(UserProfileAdapter());
+  Hive.registerAdapter(FriendAdapter());
+  Hive.registerAdapter(ChallengeAdapter());
+
+  final habitsBox = await Hive.openBox<Habit>(_habitsBoxName);
+  final profileBox = await Hive.openBox<UserProfile>(_profileBoxName);
+  final friendsBox = await Hive.openBox<Friend>(_friendsBoxName);
+  final challengesBox = await Hive.openBox<Challenge>(_challengesBoxName);
+  final settingsBox = await Hive.openBox(_settingsBoxName);
+
+  // ---- The dev / prod seam -------------------------------------------------
+  // This switch is the ONLY place the two builds wire different backends.
+  // Today both flavors use the on-device Local* implementations. When the real
+  // backend is ready, swap the prod branch for the Firebase / store-backed
+  // versions — the providers, screens, and models below never change.
+  final AuthRepository authRepository;
+  final SocialRepository socialRepository;
+  final BillingRepository billingRepository;
+  switch (config.flavor) {
+    case Flavor.dev:
+      authRepository = LocalAuthRepository(profileBox);
+      socialRepository = LocalSocialRepository(friendsBox, challengesBox);
+      billingRepository = LocalBillingRepository(settingsBox);
+    case Flavor.prod:
+      // TODO(prod): swap these for the real implementations once they exist:
+      //   authRepository    = FirebaseAuthRepository(...);   // Google sign-in
+      //   socialRepository  = FirebaseSocialRepository(...);  // cross-device
+      //   billingRepository = StoreBillingRepository(...);    // real IAP
+      authRepository = LocalAuthRepository(profileBox);
+      socialRepository = LocalSocialRepository(friendsBox, challengesBox);
+      billingRepository = LocalBillingRepository(settingsBox);
+  }
+  // --------------------------------------------------------------------------
+
+  runApp(MultiProvider(
+    providers: [
+      // The flavor is readable anywhere via context.watch<AppConfig>(), so the
+      // UI can hide demo-only tools (e.g. the simulated clock) in prod.
+      Provider<AppConfig>.value(value: config),
+      ChangeNotifierProvider(create: (_) => HabitProvider(habitsBox)),
+      ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
+      ChangeNotifierProvider(create: (_) => ChallengeProvider(socialRepository)),
+      ChangeNotifierProvider(
+          create: (_) => EntitlementProvider(billingRepository)),
+    ],
+    child: NokappHabitsApp(config: config),
+  ));
+}
+
+class NokappHabitsApp extends StatelessWidget {
+  const NokappHabitsApp({super.key, required this.config});
+
+  final AppConfig config;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget home = const RootScreen();
+    // Make the developer build unmistakable with a corner ribbon.
+    if (config.isDev) {
+      home = Banner(
+        message: 'DEV',
+        location: BannerLocation.topEnd,
+        child: home,
+      );
+    }
+    return MaterialApp(
+      title: config.appTitle,
+      debugShowCheckedModeBanner: false,
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
+      // The app always follows the device's light/dark setting.
+      themeMode: ThemeMode.system,
+      home: home,
+    );
+  }
+}
+
+ThemeData _buildDarkTheme() {
+  const bg = Color(0xFF0E0E0E);
+  const surface = Color(0xFF1A1A1A);
+  const surfaceHigh = Color(0xFF252525);
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: bg,
+    colorScheme: const ColorScheme.dark(
+      surface: surface,
+      surfaceContainer: surface,
+      surfaceContainerHigh: surfaceHigh,
+      primary: Color(0xFFB388FF),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: bg,
+      elevation: 0,
+      centerTitle: true,
+    ),
+    cardTheme: const CardThemeData(
+      color: surface,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+    ),
+  );
+}
+
+ThemeData _buildLightTheme() {
+  const bg = Color(0xFFF4F4F6);
+  const surface = Color(0xFFFFFFFF);
+  const surfaceHigh = Color(0xFFE9E9EE);
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: bg,
+    colorScheme: const ColorScheme.light(
+      surface: surface,
+      surfaceContainer: surface,
+      surfaceContainerHigh: surfaceHigh,
+      primary: Color(0xFF6D28D9),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: bg,
+      elevation: 0,
+      centerTitle: true,
+    ),
+    cardTheme: const CardThemeData(
+      color: surface,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+    ),
+  );
+}
