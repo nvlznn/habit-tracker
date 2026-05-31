@@ -7,6 +7,7 @@ import 'app_config.dart';
 import 'data/auth_repository.dart';
 import 'data/billing_repository.dart';
 import 'data/firebase_auth_repository.dart';
+import 'data/firebase_social_repository.dart';
 import 'data/social_repository.dart';
 import 'firebase_options.dart';
 import 'models/challenge.dart';
@@ -62,12 +63,12 @@ Future<void> bootstrap(AppConfig config) async {
       socialRepository = LocalSocialRepository(friendsBox, challengesBox);
       billingRepository = LocalBillingRepository(settingsBox);
     case Flavor.prod:
-      // Step 1 done: real Google sign-in. The rest are still local until their
-      // turn in the backend plan:
-      //   socialRepository  = FirebaseSocialRepository(...);  // step 2: Firestore
+      // Steps 1–2 done: real Google sign-in + Firestore-backed friends and
+      // challenges (per-user; sharing between users is step 3). Billing stays
+      // local until real store IAP:
       //   billingRepository = StoreBillingRepository(...);    // later: real IAP
       authRepository = FirebaseAuthRepository();
-      socialRepository = LocalSocialRepository(friendsBox, challengesBox);
+      socialRepository = FirebaseSocialRepository();
       billingRepository = LocalBillingRepository(settingsBox);
   }
   // --------------------------------------------------------------------------
