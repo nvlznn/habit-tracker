@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -8,9 +10,20 @@ import '../models/user_profile.dart';
 /// sign-in without touching the providers or UI.
 abstract class AuthRepository {
   UserProfile? currentUser();
+
+  /// Real Google sign-in. Returns the signed-in profile, or null if the user
+  /// cancelled. Used by the prod build; dev uses [signIn] instead.
+  Future<UserProfile?> signInWithGoogle();
+
+  /// The demo name-prompt sign-in. Dev-only; prod uses [signInWithGoogle].
   Future<UserProfile> signIn({required String displayName, String email});
   Future<void> signOut();
   Future<void> updateProfile(UserProfile profile);
+
+  /// Emits when the signed-in user changes — e.g. when Firebase restores a
+  /// session after a reload. The local demo has no async restore, so it returns
+  /// an empty stream.
+  Stream<UserProfile?> authStateChanges();
 }
 
 /// Demo implementation: stores a single profile in a Hive box under a fixed key.
@@ -24,6 +37,15 @@ class LocalAuthRepository implements AuthRepository {
 
   @override
   UserProfile? currentUser() => _box.get(_key);
+
+  // Dev never calls this (the dev UI uses the name prompt), but the interface
+  // requires it — hand back a canned demo profile so it's harmless if hit.
+  @override
+  Future<UserProfile?> signInWithGoogle() =>
+      signIn(displayName: 'Demo User', email: 'demo@gmail.com');
+
+  @override
+  Stream<UserProfile?> authStateChanges() => const Stream.empty();
 
   @override
   Future<UserProfile> signIn({

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app_config.dart';
 import '../models/friend.dart';
 import '../providers/auth_provider.dart';
 import '../providers/challenge_provider.dart';
@@ -76,7 +77,9 @@ class _SignedOutView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Demo sign-in — no real Google account needed yet',
+              context.watch<AppConfig>().isDev
+                  ? 'Demo sign-in — no real Google account needed'
+                  : 'Signs in with your Google account',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 12, color: cs.onSurface.withValues(alpha: 0.38)),
@@ -88,12 +91,24 @@ class _SignedOutView extends StatelessWidget {
   }
 
   Future<void> _signIn(BuildContext context) async {
-    final name = await _promptName(context, title: 'Your name');
-    if (name == null || !context.mounted) return;
-    await context.read<AuthProvider>().signIn(
-          displayName: name,
-          email: _fauxEmail(name),
-        );
+    // Dev keeps the offline name-prompt demo; prod uses real Google sign-in.
+    if (context.read<AppConfig>().isDev) {
+      final name = await _promptName(context, title: 'Your name');
+      if (name == null || !context.mounted) return;
+      await context.read<AuthProvider>().signIn(
+            displayName: name,
+            email: _fauxEmail(name),
+          );
+      return;
+    }
+    try {
+      await context.read<AuthProvider>().signInWithGoogle();
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign-in failed: $e')),
+      );
+    }
   }
 }
 
