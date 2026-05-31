@@ -34,9 +34,11 @@ habit-tracker/
     │   │   ├── friend.dart
     │   │   ├── challenge.dart             # ChallengeAdapter (typeId 3)
     │   │   └── user_profile.dart
-    │   ├── data/                          # swappable repository interfaces
-    │   │   ├── auth_repository.dart
-    │   │   ├── social_repository.dart
+    │   ├── data/                          # swappable repository interfaces + impls
+    │   │   ├── auth_repository.dart       # interface + LocalAuthRepository (Hive demo)
+    │   │   ├── firebase_auth_repository.dart   # Google sign-in (prod)
+    │   │   ├── social_repository.dart     # interface + LocalSocialRepository (Hive demo)
+    │   │   ├── firebase_social_repository.dart # Firestore friends/challenges (prod)
     │   │   └── billing_repository.dart
     │   ├── providers/                     # ChangeNotifier state
     │   │   ├── habit_provider.dart
