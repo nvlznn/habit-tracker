@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/social_repository.dart';
@@ -11,9 +13,18 @@ import '../utils/date_key.dart';
 class ChallengeProvider extends ChangeNotifier {
   ChallengeProvider(this._repo) {
     _runLifecycle();
+    // Rebuild when the data changes underneath us — e.g. a Firestore snapshot
+    // arrives or auth switches users. (No-op for the local demo, whose stream
+    // is empty.) Re-run the lifecycle first so freshly-loaded cloud data has
+    // its drop/ended rules applied before the UI reads it.
+    _sub = _repo.changes().listen((_) {
+      _runLifecycle();
+      notifyListeners();
+    });
   }
 
   final SocialRepository _repo;
+  late final StreamSubscription<void> _sub;
 
   List<Friend> get friends => _repo.friends();
   List<Challenge> get challenges => _repo.challenges();
@@ -100,5 +111,11 @@ class ChallengeProvider extends ChangeNotifier {
   Future<void> deleteChallenge(String id) async {
     await _repo.deleteChallenge(id);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
   }
 }

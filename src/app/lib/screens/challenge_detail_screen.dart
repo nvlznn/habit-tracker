@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app_config.dart';
 import '../models/challenge.dart';
 import '../providers/auth_provider.dart';
 import '../providers/challenge_provider.dart';
@@ -30,6 +31,10 @@ class ChallengeDetailScreen extends StatelessWidget {
           );
         }
         final meId = auth.currentUser?.id;
+        // In prod you can only check in for yourself; friends' rows are
+        // read-only (they check in on their own device). Dev keeps the
+        // simulate-anyone toggles so the offline demo works from one screen.
+        final isDev = context.watch<AppConfig>().isDev;
         final cs = Theme.of(context).colorScheme;
         final color = Color(challenge.colorValue);
         final mutual = mutualDays(challenge.activeCheckins);
@@ -98,6 +103,7 @@ class ChallengeDetailScreen extends StatelessWidget {
                     participantId: id,
                     label: labelFor(id),
                     isMe: id == meId,
+                    canEdit: id == meId || isDev,
                     color: color,
                     dateKeys: challenge.checkinsFor(id),
                   ),
@@ -223,12 +229,14 @@ class _SharedStreakCard extends StatelessWidget {
   }
 }
 
-/// One participant's today-toggle + their own history. Tapping the today square
-/// toggles that person's check-in for today (for a friend this "simulates" their
-/// device, so the demo can be driven from one screen). The "Edit history" row
-/// expands a month calendar for fixing any past day; those edits skip the
-/// drop/ended lifecycle (demo-only) so backfilling history can't instantly kill
-/// the challenge.
+/// One participant's today square + their own history. When [canEdit] is true,
+/// tapping the today square toggles that person's check-in and the "Edit
+/// history" row expands a month calendar for past days (those edits skip the
+/// drop/ended lifecycle so backfilling can't instantly kill the challenge).
+///
+/// [canEdit] is your own row always, plus everyone in dev (so the offline demo
+/// can simulate friends from one screen). In prod a friend's row is read-only —
+/// you can see their status but only check in for yourself.
 class _ParticipantRow extends StatefulWidget {
   const _ParticipantRow({
     super.key,
@@ -236,6 +244,7 @@ class _ParticipantRow extends StatefulWidget {
     required this.participantId,
     required this.label,
     required this.isMe,
+    required this.canEdit,
     required this.color,
     required this.dateKeys,
   });
@@ -244,6 +253,7 @@ class _ParticipantRow extends StatefulWidget {
   final String participantId;
   final String label;
   final bool isMe;
+  final bool canEdit;
   final Color color;
   final Set<String> dateKeys;
 
@@ -283,7 +293,11 @@ class _ParticipantRowState extends State<_ParticipantRow> {
                     Text(
                       widget.isMe
                           ? 'tap to check in today'
-                          : 'tap to simulate today',
+                          : widget.canEdit
+                              ? 'tap to simulate today'
+                              : (doneToday
+                                  ? 'checked in today'
+                                  : 'not checked in yet'),
                       style: TextStyle(
                           fontSize: 11,
                           color: cs.onSurface.withValues(alpha: 0.38)),
@@ -294,8 +308,10 @@ class _ParticipantRowState extends State<_ParticipantRow> {
               _CheckSquare(
                 color: widget.color,
                 done: doneToday,
-                onTap: () => context.read<ChallengeProvider>().toggleDay(
-                    widget.challengeId, widget.participantId, today),
+                onTap: widget.canEdit
+                    ? () => context.read<ChallengeProvider>().toggleDay(
+                        widget.challengeId, widget.participantId, today)
+                    : null,
               ),
             ],
           ),
@@ -308,50 +324,53 @@ class _ParticipantRowState extends State<_ParticipantRow> {
               asOf: fromEpochDay(simulatedTodayEpochDay()),
             ),
           ),
-          const SizedBox(height: 4),
-          // Expandable past-history editor. Collapsed by default so a challenge
-          // with many participants stays short.
-          GestureDetector(
-            onTap: () => setState(() => _editing = !_editing),
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                children: [
-                  Icon(Icons.edit_calendar_outlined,
-                      size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Edit history',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface.withValues(alpha: 0.7)),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _editing ? Icons.expand_less : Icons.expand_more,
-                    size: 20,
-                    color: cs.onSurface.withValues(alpha: 0.6),
-                  ),
-                ],
+          // Past-history editor — only for rows you can edit (yours, or anyone
+          // in the dev demo). Collapsed by default so a challenge with many
+          // participants stays short.
+          if (widget.canEdit) ...[
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: () => setState(() => _editing = !_editing),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(Icons.edit_calendar_outlined,
+                        size: 16, color: cs.onSurface.withValues(alpha: 0.6)),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Edit history',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: cs.onSurface.withValues(alpha: 0.7)),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      _editing ? Icons.expand_less : Icons.expand_more,
+                      size: 20,
+                      color: cs.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (_editing) ...[
-            const SizedBox(height: 8),
-            MonthCalendar(
-              dateKeys: widget.dateKeys,
-              color: widget.color,
-              asOf: fromEpochDay(simulatedTodayEpochDay()),
-              onToggleDate: (date) =>
-                  context.read<ChallengeProvider>().toggleDay(
-                        widget.challengeId,
-                        widget.participantId,
-                        dateKey(date),
-                        runLifecycle: false,
-                      ),
-            ),
+            if (_editing) ...[
+              const SizedBox(height: 8),
+              MonthCalendar(
+                dateKeys: widget.dateKeys,
+                color: widget.color,
+                asOf: fromEpochDay(simulatedTodayEpochDay()),
+                onToggleDate: (date) =>
+                    context.read<ChallengeProvider>().toggleDay(
+                          widget.challengeId,
+                          widget.participantId,
+                          dateKey(date),
+                          runLifecycle: false,
+                        ),
+              ),
+            ],
           ],
         ],
       ),
@@ -368,7 +387,7 @@ class _CheckSquare extends StatelessWidget {
 
   final Color color;
   final bool done;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

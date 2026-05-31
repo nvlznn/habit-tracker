@@ -26,6 +26,12 @@ abstract class SocialRepository {
   Future<void> updateChallenge(Challenge challenge);
   Future<void> toggleDay(String challengeId, String participantId, String dateKey);
   Future<void> deleteChallenge(String id);
+
+  /// Emits when the data changes underneath us — e.g. a Firestore snapshot
+  /// arrives, or auth switches users. Lets the provider rebuild on async cloud
+  /// updates. The local demo mutates synchronously and has nothing to push, so
+  /// it returns an empty stream.
+  Stream<void> changes();
 }
 
 /// Demo implementation backed by two Hive boxes.
@@ -113,4 +119,9 @@ class LocalSocialRepository implements SocialRepository {
 
   @override
   Future<void> deleteChallenge(String id) => _challengesBox.delete(id);
+
+  // Hive mutations are synchronous and the provider already notifies after each
+  // call, so there's nothing async to push here.
+  @override
+  Stream<void> changes() => const Stream.empty();
 }
