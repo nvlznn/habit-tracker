@@ -21,12 +21,14 @@ habit-tracker/
 ├── README.md                              # this file
 └── src/app/
     ├── pubspec.yaml
+    ├── firebase.json                      # FlutterFire project link (generated)
     ├── lib/
     │   ├── main.dart                      # default entry → developer build
     │   ├── main_dev.dart                  # developer build (mock auth + purchases)
     │   ├── main_prod.dart                 # real-users build (ships to the store)
-    │   ├── bootstrap.dart                 # shared startup: Hive, providers, themes, dev/prod seam
+    │   ├── bootstrap.dart                 # shared startup: Firebase, Hive, providers, themes, dev/prod seam
     │   ├── app_config.dart                # Flavor enum + AppConfig
+    │   ├── firebase_options.dart          # generated Firebase config (flutterfire configure)
     │   ├── models/
     │   │   ├── habit.dart                 # hand-written HabitAdapter (typeId 0)
     │   │   ├── friend.dart
