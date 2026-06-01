@@ -7,7 +7,9 @@ import 'app_config.dart';
 import 'data/auth_repository.dart';
 import 'data/billing_repository.dart';
 import 'data/firebase_auth_repository.dart';
+import 'data/firebase_habit_repository.dart';
 import 'data/firebase_social_repository.dart';
+import 'data/habit_repository.dart';
 import 'data/social_repository.dart';
 import 'firebase_options.dart';
 import 'models/challenge.dart';
@@ -55,19 +57,27 @@ Future<void> bootstrap(AppConfig config) async {
   // backend is ready, swap the prod branch for the Firebase / store-backed
   // versions — the providers, screens, and models below never change.
   final AuthRepository authRepository;
+  final HabitRepository habitRepository;
   final SocialRepository socialRepository;
   final BillingRepository billingRepository;
   switch (config.flavor) {
     case Flavor.dev:
       authRepository = LocalAuthRepository(profileBox);
+      habitRepository = LocalHabitRepository(habitsBox);
       socialRepository = LocalSocialRepository(friendsBox, challengesBox);
       billingRepository = LocalBillingRepository(settingsBox);
     case Flavor.prod:
-      // Steps 1–2 done: real Google sign-in + Firestore-backed friends and
-      // challenges (per-user; sharing between users is step 3). Billing stays
-      // local until real store IAP:
+      // Steps 1–2 done: real Google sign-in + Firestore-backed habits, friends
+      // and challenges (per-user; sharing between users is step 3). Billing
+      // stays local until real store IAP:
       //   billingRepository = StoreBillingRepository(...);    // later: real IAP
       authRepository = FirebaseAuthRepository();
+      // localBox + settingsBox let it push any on-device-only habits up to the
+      // cloud once, on this user's first sign-in on this device.
+      habitRepository = FirebaseHabitRepository(
+        localBox: habitsBox,
+        migrationFlags: settingsBox,
+      );
       socialRepository = FirebaseSocialRepository();
       billingRepository = LocalBillingRepository(settingsBox);
   }
@@ -78,7 +88,7 @@ Future<void> bootstrap(AppConfig config) async {
       // The flavor is readable anywhere via context.watch<AppConfig>(), so the
       // UI can hide demo-only tools (e.g. the simulated clock) in prod.
       Provider<AppConfig>.value(value: config),
-      ChangeNotifierProvider(create: (_) => HabitProvider(habitsBox)),
+      ChangeNotifierProvider(create: (_) => HabitProvider(habitRepository)),
       ChangeNotifierProvider(create: (_) => AuthProvider(authRepository)),
       ChangeNotifierProvider(create: (_) => ChallengeProvider(socialRepository)),
       ChangeNotifierProvider(

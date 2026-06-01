@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each user owns everything under their own users/{uid} document —
+    // habits, friends, challenges. A signed-in user can read/write only
+    // their own data; the {document=**} wildcard covers every subcollection.
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

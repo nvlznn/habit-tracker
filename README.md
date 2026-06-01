@@ -22,6 +22,7 @@ habit-tracker/
 └── src/app/
     ├── pubspec.yaml
     ├── firebase.json                      # FlutterFire project link (generated)
+    ├── firestore.rules                    # Firestore security rules (source of truth; deploy: firebase deploy --only firestore:rules)
     ├── lib/
     │   ├── main.dart                      # default entry → developer build
     │   ├── main_dev.dart                  # developer build (mock auth + purchases)
@@ -39,6 +40,8 @@ habit-tracker/
     │   │   ├── firebase_auth_repository.dart   # Google sign-in (prod)
     │   │   ├── social_repository.dart     # interface + LocalSocialRepository (Hive demo)
     │   │   ├── firebase_social_repository.dart # Firestore friends/challenges (prod)
+    │   │   ├── habit_repository.dart       # interface + LocalHabitRepository (Hive demo)
+    │   │   ├── firebase_habit_repository.dart  # Firestore per-user habits + first-sign-in migration (prod)
     │   │   └── billing_repository.dart
     │   ├── providers/                     # ChangeNotifier state
     │   │   ├── habit_provider.dart
